@@ -221,7 +221,7 @@ export default function FacultyScheduleViewPage() {
         </div>
 
         <header className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.12em] text-[#6C8096]">Faculty Function</p>
+          <p className="text-xs uppercase tracking-[0.12em] text-[#6C8096]">Faculty</p>
           <h1 className="mt-1 text-2xl font-bold text-[#1F3A5F]">View Schedule</h1>
           <p className="mt-2 text-sm text-[#5A6C7D]">
             Click a day to view appointments and department-assigned items. Availability can be set
