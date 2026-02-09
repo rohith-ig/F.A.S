@@ -52,7 +52,7 @@ export default function ViewAppointmentPage() {
         </div>
 
         {/* Subheading */}
-        <p className="text-lg text-[#2A4A75] mt-2 font-medium">Faculty Dashboard</p>
+        <p className="text-lg text-[#2A4A75] mt-2 font-medium">Faculty Appointment Manager</p>
 
         {/* Description */}
         <p className="text-base text-[#2A4A75] mt-2">
