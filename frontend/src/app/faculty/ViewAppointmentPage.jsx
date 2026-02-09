@@ -38,24 +38,32 @@ export default function ViewAppointmentPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#F7F9FC] px-4 overflow-hidden">
       {/* Background blobs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#4A6FA5]/20 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#2A4A75]/20 rounded-full blur-3xl" />
+      <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-[#4A6FA5]/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-[#2A4A75]/20 rounded-full blur-3xl" />
 
       {/* Main Card */}
-      <div className="relative w-full max-w-[650px] bg-white border border-[#E0E0E0] rounded-2xl shadow-sm p-6 md:p-8">
-        {/* Header */}
-        <h1 className="text-3xl font-semibold text-[#1F3A5F]">
-          View Appointments
-        </h1>
-        <p className="text-base text-[#2A4A75] mt-1">
-          Faculty can review pending requests and scheduled meetings
+      <div className="relative w-full max-w-[900px] bg-white border border-[#E0E0E0] rounded-2xl shadow-md p-8 md:p-12">
+        {/* Header with Icon */}
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 flex items-center justify-center bg-[#4A6FA5] text-white font-bold rounded-sm text-lg">
+            FS
+          </div>
+          <h1 className="text-4xl font-bold text-[#1F3A5F]">Faculty Scheduler</h1>
+        </div>
+
+        {/* Subheading */}
+        <p className="text-lg text-[#2A4A75] mt-2 font-medium">Faculty Dashboard</p>
+
+        {/* Description */}
+        <p className="text-base text-[#2A4A75] mt-2">
+          Review pending requests and manage your scheduled appointments
         </p>
 
         {/* Tabs */}
-        <div className="mt-6 flex border-b border-[#E0E0E0]">
+        <div className="mt-8 flex border-b border-[#E0E0E0]">
           <button
             onClick={() => setActiveTab("pending")}
-            className={`px-4 py-2 text-base font-medium transition ${
+            className={`px-6 py-3 text-lg font-medium transition ${
               activeTab === "pending"
                 ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
                 : "text-[#4A6FA5] hover:text-[#1F3A5F]"
@@ -66,7 +74,7 @@ export default function ViewAppointmentPage() {
 
           <button
             onClick={() => setActiveTab("scheduled")}
-            className={`ml-4 px-4 py-2 text-base font-medium transition ${
+            className={`ml-6 px-6 py-3 text-lg font-medium transition ${
               activeTab === "scheduled"
                 ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
                 : "text-[#4A6FA5] hover:text-[#1F3A5F]"
@@ -77,7 +85,7 @@ export default function ViewAppointmentPage() {
         </div>
 
         {/* Content */}
-        <div className="mt-6 space-y-4">
+        <div className="mt-8 space-y-6">
           {activeTab === "pending" &&
             (pendingAppointments.length ? (
               pendingAppointments.map((appt) => (
@@ -103,18 +111,16 @@ export default function ViewAppointmentPage() {
 
 function AppointmentCard({ data }) {
   return (
-    <div className="border border-[#E0E0E0] rounded-xl p-5 bg-white hover:shadow-sm transition">
+    <div className="border border-[#E0E0E0] rounded-2xl p-6 bg-white hover:shadow-md transition">
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-lg font-semibold text-[#1F3A5F]">
+          <h3 className="text-xl font-semibold text-[#1F3A5F]">
             {data.student}
           </h3>
-          <p className="text-base text-[#4A6FA5] mt-0.5">
-            {data.topic}
-          </p>
+          <p className="text-base text-[#4A6FA5] mt-1">{data.topic}</p>
         </div>
 
-        <span className="text-sm px-3 py-1 rounded-full bg-[#4A6FA5]/10 text-[#2A4A75]">
+        <span className="text-sm px-4 py-1 rounded-full bg-[#4A6FA5]/10 text-[#2A4A75]">
           {data.mode}
         </span>
       </div>
@@ -129,7 +135,7 @@ function AppointmentCard({ data }) {
 
 function EmptyState({ text }) {
   return (
-    <div className="text-center text-base text-[#4A6FA5] py-8">
+    <div className="text-center text-base text-[#4A6FA5] py-12">
       {text}
     </div>
   );

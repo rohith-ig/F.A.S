@@ -33,18 +33,30 @@ export default function ViewFacultyAppointments() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[#F7F9FC] overflow-hidden font-[Calibri,Arial,sans-serif] px-4 text-[16px]">
+    <div className="relative min-h-screen flex flex-col items-center bg-[#F7F9FC] overflow-hidden font-[Calibri,Arial,sans-serif] px-4 text-[16px] py-8">
       {/* Background blobs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#4A6FA5]/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#2A4A75]/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-[#4A6FA5]/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-[#2A4A75]/20 rounded-full blur-3xl animate-pulse" />
+
+      {/* Header with FS icon */}
+      <div className="flex items-center space-x-4 mb-6 z-10">
+        <div className="w-20 h-20 flex items-center justify-center bg-gradient-to-r from-[#4A6FA5] to-[#2A4A75] text-white font-bold rounded-md text-4xl shadow-md">
+          FS
+        </div>
+        <div>
+          <h1 className="text-4xl font-bold text-[#1F3A5F]">Faculty Scheduler</h1>
+          <p className="text-lg text-[#2A4A75] font-medium mt-1">Faculty Dashboard</p>
+          <p className="text-base text-[#2A4A75] mt-1">
+            Review pending requests and manage your scheduled appointments
+          </p>
+        </div>
+      </div>
 
       {/* Side Banner */}
       {showBanner && (
         <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 animate-slide-in">
           <div className="w-72 rounded-xl border border-[#E0E0E0] bg-white px-6 py-4 shadow-md">
-            <p className="text-lg font-semibold text-[#1F3A5F]">
-              Student Notified
-            </p>
+            <p className="text-lg font-semibold text-[#1F3A5F]">Student Notified</p>
             <p className="text-[15px] text-[#4A6FA5] mt-1">
               The student has been informed of the appointment update.
             </p>
@@ -53,16 +65,14 @@ export default function ViewFacultyAppointments() {
       )}
 
       {/* Main Card */}
-      <div className="relative w-full max-w-xl bg-white border border-[#E0E0E0] rounded-2xl shadow-sm p-6 sm:p-8 animate-fade-in">
-        <h1 className="text-[28px] font-semibold text-[#1F3A5F] mb-2">
-          Appointment Request
-        </h1>
+      <div className="relative w-full max-w-2xl bg-white border border-[#E0E0E0] rounded-2xl shadow-md p-8 sm:p-12 animate-fade-in z-10">
+        <h2 className="text-3xl font-semibold text-[#1F3A5F] mb-2">Appointment Request</h2>
         <p className="text-[16px] text-[#2A4A75] mb-6">
           Review and manage incoming appointment requests
         </p>
 
         {/* Appointment Details */}
-        <div className="space-y-3 mb-6">
+        <div className="space-y-4 mb-6">
           <Detail label="Student" value="Ananya Sharma" />
           <Detail label="Date & Time" value="12 Feb 2026 · 10:30 AM" />
           <Detail label="Mode" value={appointmentMode} />
@@ -84,16 +94,14 @@ export default function ViewFacultyAppointments() {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Add comments for approval, rejection, or cancellation..."
-            className="w-full min-h-[110px] rounded-lg border border-[#E0E0E0] p-3 text-[16px] focus:outline-none focus:ring-2 focus:ring-[#4A6FA5]/40 resize-none"
+            className="w-full min-h-[120px] rounded-lg border border-[#E0E0E0] p-3 text-[16px] focus:outline-none focus:ring-2 focus:ring-[#4A6FA5]/40 resize-none"
           />
         </div>
 
         {/* Meeting Link Generated */}
         {meetingLink && (
           <div className="mb-6 rounded-lg border border-[#E0E0E0] bg-[#F7F9FC] p-4">
-            <p className="font-semibold text-[#1F3A5F] mb-1">
-              Meeting Link Generated
-            </p>
+            <p className="font-semibold text-[#1F3A5F] mb-1">Meeting Link Generated</p>
             <a
               href={meetingLink}
               target="_blank"
@@ -106,7 +114,7 @@ export default function ViewFacultyAppointments() {
         )}
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-4">
           <button
             onClick={handleReject}
             className="flex-1 rounded-lg border border-[#E0E0E0] py-3 text-[16px] font-medium text-[#1F3A5F] hover:bg-gray-50 transition"
@@ -126,8 +134,6 @@ export default function ViewFacultyAppointments() {
           </button>
         </div>
       </div>
-
-      {/* Animations */}
     </div>
   );
 }
