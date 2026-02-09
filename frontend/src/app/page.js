@@ -21,7 +21,6 @@ export default function FacultySchedulerHero() {
       {/* Background blobs */}
       <div className="absolute -top-1/2 -right-1/4 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(79,111,165,0.08)_0%,transparent_70%)] animate-float" />
       <div className="absolute -bottom-1/3 -left-1/4 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(31,58,95,0.05)_0%,transparent_70%)] animate-float-reverse" />
-
       <div className="relative z-10 flex w-full flex-col items-center">
         <div className="w-full max-w-[600px]">
           {/* Brand */}

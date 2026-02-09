@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { getFacultyById, getFacultySlotsForNextDays } from "../facultyData";
 import { useParams } from "next/navigation";
+import BackArrowButton from "@/components/BackArrowButton";
 
 export default function RequestFacultyPage({ params }) {
   const { id } = useParams();
@@ -17,6 +18,9 @@ export default function RequestFacultyPage({ params }) {
     return (
       <main className="min-h-screen bg-[#F7F9FC] px-4 py-10">
         <section className="mx-auto w-full max-w-3xl rounded-lg border border-[#E0E0E0] bg-white p-8 shadow-sm">
+          <div className="mb-4">
+            <BackArrowButton />
+          </div>
           <h1 className="text-2xl font-bold text-[#1F3A5F]">Faculty Not Found</h1>
           <p className="mt-2 text-sm text-[#5A6C7D]">
             The selected faculty ID does not exist in the demo data.
@@ -48,6 +52,9 @@ export default function RequestFacultyPage({ params }) {
     return (
       <main className="min-h-screen bg-[#F7F9FC] px-4 py-10">
         <section className="mx-auto w-full max-w-2xl rounded-lg border border-[#E0E0E0] bg-white p-8 shadow-sm">
+          <div className="mb-4">
+            <BackArrowButton />
+          </div>
           <p className="text-xs uppercase tracking-[0.12em] text-[#6C8096]">Request Submitted</p>
           <h1 className="mt-2 text-2xl font-bold text-[#1F3A5F]">Appointment Request Sent</h1>
           <p className="mt-2 text-sm text-[#5A6C7D]">
@@ -103,6 +110,9 @@ export default function RequestFacultyPage({ params }) {
   return (
     <main className="min-h-screen bg-[#F7F9FC] px-4 py-10">
       <section className="mx-auto w-full max-w-3xl rounded-lg border border-[#E0E0E0] bg-white p-8 shadow-sm">
+        <div className="mb-4">
+          <BackArrowButton />
+        </div>
         <p className="text-xs uppercase tracking-[0.12em] text-[#6C8096]">Request Faculty</p>
         <h1 className="mt-2 text-2xl font-bold text-[#1F3A5F]">{faculty.name}</h1>
         <p className="mt-1 text-sm text-[#5A6C7D]">{faculty.department}</p>
