@@ -46,7 +46,8 @@ export default function Navbar() {
     admin: [
       { label: "Dashboard", href: "/admin" },
       { label: "Manage Tickets", href: "/admin/tickets" },
-    ],
+      { label: "User Accounts", href: "admin/users"}
+    ]
   };
 
   const currentLinks = navLinks[portalType] || [];

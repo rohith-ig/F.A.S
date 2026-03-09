@@ -44,12 +44,6 @@ export default function AdminDashboard() {
         <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-lg border border-[#DCE3ED] bg-white px-4 py-3 shadow-sm">
             <p className="text-[11px] uppercase tracking-[0.1em] text-[#6E8196]">
-              Active Faculty
-            </p>
-            <p className="mt-1 text-lg font-semibold text-[#1F3A5F]">42</p>
-          </div>
-          <div className="rounded-lg border border-[#DCE3ED] bg-white px-4 py-3 shadow-sm">
-            <p className="text-[11px] uppercase tracking-[0.1em] text-[#6E8196]">
               Open Tickets
             </p>
             <p className="mt-1 text-lg font-semibold text-[#1F3A5F]">7</p>
