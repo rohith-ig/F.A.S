@@ -13,6 +13,8 @@ export default function ManageRequests() {
   const dept = params.get("dept") || "notFound";
   const date = params.get("date") || "notFound";
   const time = params.get("time") || "notFound";
+  const status = params.get("status");
+
   const location = params.get("location") || "notFound";
 
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -77,14 +79,17 @@ export default function ManageRequests() {
         </div>
 
         {/* Cancel Button */}
-        <div className="mb-10">
-          <button
-            className="bg-red-600 hover:bg-red-700 text-white text-base px-6 py-3 rounded-lg transition"
-            onClick={() => setShowCancelModal(true)}
-          >
-            Cancel Appointment
-          </button>
-        </div>
+        {status !== "Completed" && (
+          <div className="mb-10">
+            <button
+              className="bg-red-600 hover:bg-red-700 text-white text-base px-6 py-3 rounded-lg transition"
+              onClick={() => setShowCancelModal(true)}
+            >
+              Cancel Appointment
+            </button>
+          </div>
+        )}
+
 
       </div>
 

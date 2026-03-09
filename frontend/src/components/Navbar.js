@@ -34,7 +34,7 @@ export default function Navbar() {
     student: [
       { label: "Dashboard", href: "/student" },
       { label: "Search Faculty", href: "/student/search" },
-      { label: "Requests", href: "/student/history" },
+      { label: "Appointments", href: "/student/history" },
       { label: "Tickets", href: "/student/tickets" },
     ],
     faculty: [
