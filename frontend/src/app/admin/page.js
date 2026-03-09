@@ -14,6 +14,7 @@ const features = [
     desc: "Create, update, or remove Student and Faculty accounts with role control.",
     icon: Users,
     action: "Manage",
+    href: "/admin/users"
   },
   {
     title: "Support Tickets",
