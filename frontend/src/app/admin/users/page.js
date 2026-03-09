@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+
 import { Plus, Pencil, Trash2, User, Search } from "lucide-react";
 
 export default function ManageAccountsPage() {
@@ -30,13 +31,21 @@ export default function ManageAccountsPage() {
     },
   ]);
 
-  const [newUser, setNewUser] = useState({
+    const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    role: "Faculty",
-  });
+    role: "Student",
+    roll: "",
+    program: "",
+    dept: "",
+    location: "",
+    subjects: "",
+    });
+
 
   const [editingId, setEditingId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
+
 
   const filteredUsers = users
     .filter((u) => u.role === tab)
@@ -44,12 +53,30 @@ export default function ManageAccountsPage() {
       u.name.toLowerCase().includes(search.toLowerCase())
     );
 
-  const handleAddUser = () => {
+    const handleAddUser = () => {
     if (!newUser.name || !newUser.email) return;
 
-    setUsers([...users, { id: Date.now(), ...newUser }]);
-    setNewUser({ name: "", email: "", role: "Faculty" });
-  };
+    setUsers([
+        ...users,
+        {
+        id: Date.now(),
+        ...newUser,
+        role: tab,
+        },
+    ]);
+
+    setNewUser({
+        name: "",
+        email: "",
+        role: tab,
+        roll: "",
+        program: "",
+        dept: "",
+        location: "",
+        subjects: "",
+    });
+    };
+
 
   const handleDelete = (id) => {
     setUsers(users.filter((u) => u.id !== id));
@@ -82,9 +109,6 @@ export default function ManageAccountsPage() {
             Manage Accounts
           </h1>
 
-          <p className="text-sm text-[#4A6FA5] mt-1">
-            View, update, and manage student and faculty profiles.
-          </p>
         </div>
 
 
@@ -141,47 +165,124 @@ export default function ManageAccountsPage() {
 
 
         {/* Add Faculty */}
-        {tab === "Faculty" && (
-          <div className="bg-white border border-[#E0E0E0] rounded-lg p-6 mb-8 shadow-sm transition hover:shadow-md">
+    {/* Add User */}
+    <div className="bg-white border border-[#E0E0E0] rounded-lg p-6 mb-8 shadow-sm transition hover:shadow-md">
 
-            <h2 className="text-base font-semibold text-[#1F3A5F] mb-4">
-              Add Faculty
-            </h2>
+    <h2 className="text-base font-semibold text-[#1F3A5F] mb-4">
+        Add {tab}
+    </h2>
 
-            <div className="grid md:grid-cols-2 gap-4">
+    {/* STUDENT FORM */}
+    {tab === "Student" && (
+        <div className="grid md:grid-cols-5 gap-3">
 
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newUser.name}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, name: e.target.value })
-                }
-                className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6FA5]"
-              />
+        <input
+            placeholder="Name"
+            value={newUser.name}
+            onChange={(e) =>
+            setNewUser({ ...newUser, name: e.target.value, role: "Student" })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
 
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={newUser.email}
-                onChange={(e) =>
-                  setNewUser({ ...newUser, email: e.target.value })
-                }
-                className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#4A6FA5]"
-              />
+        <input
+            placeholder="Roll Number"
+            value={newUser.roll}
+            onChange={(e) =>
+            setNewUser({ ...newUser, roll: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
 
-            </div>
+        <input
+            placeholder="Email"
+            value={newUser.email}
+            onChange={(e) =>
+            setNewUser({ ...newUser, email: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
 
-            <button
-              onClick={handleAddUser}
-              className="mt-4 flex items-center gap-2 bg-[#1F3A5F] text-white px-4 py-2 rounded-md text-sm transition hover:bg-[#2A4A75]"
-            >
-              <Plus size={16} />
-              Add Faculty
-            </button>
+        <select
+            value={newUser.program}
+            onChange={(e) =>
+            setNewUser({ ...newUser, program: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        >
+            <option value="">Program</option>
+            <option>BTech</option>
+            <option>MTech</option>
+            <option>PhD</option>
+        </select>
 
-          </div>
-        )}
+
+
+        </div>
+    )}
+
+    {/* FACULTY FORM */}
+    {tab === "Faculty" && (
+        <div className="grid md:grid-cols-2 gap-3">
+
+        <input
+            placeholder="Name"
+            value={newUser.name}
+            onChange={(e) =>
+            setNewUser({ ...newUser, name: e.target.value, role: "Faculty" })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
+
+        <input
+            placeholder="Email"
+            value={newUser.email}
+            onChange={(e) =>
+            setNewUser({ ...newUser, email: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
+
+        <input
+            placeholder="Department"
+            value={newUser.dept}
+            onChange={(e) =>
+            setNewUser({ ...newUser, dept: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
+
+        <input
+            placeholder="Location"
+            value={newUser.location}
+            onChange={(e) =>
+            setNewUser({ ...newUser, location: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm"
+        />
+
+        <input
+            placeholder="Subjects (comma separated)"
+            value={newUser.subjects}
+            onChange={(e) =>
+            setNewUser({ ...newUser, subjects: e.target.value })
+            }
+            className="border border-[#E0E0E0] rounded-md px-3 py-2 text-sm md:col-span-2"
+        />
+
+        </div>
+    )}
+
+  <button
+    onClick={handleAddUser}
+    className="mt-4 flex items-center gap-2 bg-[#1F3A5F] text-white px-4 py-2 rounded-md text-sm hover:bg-[#2A4A75]"
+  >
+    <Plus size={16} />
+    Add {tab}
+  </button>
+
+</div>
+
 
 
         {/* Table Card */}
@@ -200,6 +301,7 @@ export default function ManageAccountsPage() {
         {tab === "Student" && (
           <th className="text-left font-medium">Roll Number</th>
         )}
+        
 
         <th className="text-left font-medium">Email</th>
 
@@ -209,95 +311,115 @@ export default function ManageAccountsPage() {
       </tr>
     </thead>
 
+    
+ {/* ----------- */}
     <tbody>
 
-      {filteredUsers.map((user) => (
+    {filteredUsers.map((user) => (
+    <React.Fragment key={user.id}>
+
+
+        {/* MAIN ROW */}
         <tr
-          key={user.id}
-          className="border-b border-[#F1F4F9] hover:bg-[#F9FBFE] transition"
+        key={user.id}
+        onClick={() =>
+            setExpandedId(expandedId === user.id ? null : user.id)
+        }
+        className="border-b border-[#F1F4F9] hover:bg-[#F9FBFE] transition cursor-pointer"
         >
 
-          {/* Name */}
-          <td className="p-4 flex items-center gap-2 text-[#1F3A5F]">
+        {/* Name */}
+        <td className="p-4 flex items-center gap-2 text-[#1F3A5F]">
             <User size={16} className="text-[#4A6FA5]" />
+            {user.name}
+        </td>
 
-            {editingId === user.id ? (
-              <input
-                value={user.name}
-                onChange={(e) =>
-                  handleChange(user.id, "name", e.target.value)
-                }
-                className="border border-[#E0E0E0] px-2 py-1 rounded text-sm"
-              />
-            ) : (
-              user.name
-            )}
-
-          </td>
-
-
-          {/* Roll Number */}
-          {tab === "Student" && (
+        {/* Roll */}
+        {tab === "Student" && (
             <td className="text-[#2A4A75]">{user.roll}</td>
-          )}
+        )}
 
+        {/* Email */}
+        <td className="text-[#2A4A75]">{user.email}</td>
 
-          {/* Email */}
-          <td className="text-[#2A4A75]">
-
-            {editingId === user.id ? (
-              <input
-                value={user.email}
-                onChange={(e) =>
-                  handleChange(user.id, "email", e.target.value)
-                }
-                className="border border-[#E0E0E0] px-2 py-1 rounded text-sm"
-              />
-            ) : (
-              user.email
-            )}
-
-          </td>
-
-
-          {/* Edit Column */}
-          <td className="text-center">
-
-            {editingId === user.id ? (
-              <button
-                onClick={handleSave}
-                className="text-sm font-medium text-[#1F3A5F] hover:text-[#4A6FA5]"
-              >
-                Save
-              </button>
-            ) : (
-              <button
-                onClick={() => handleEdit(user.id)}
-                className="p-2 rounded-md hover:bg-[#EEF3FA] transition"
-              >
-                <Pencil size={16} className="text-[#4A6FA5]" />
-              </button>
-            )}
-
-          </td>
-
-
-          {/* Delete Column */}
-          <td className="text-center">
-
+        {/* Edit */}
+        <td className="text-center">
             <button
-              onClick={() => handleDelete(user.id)}
-              className="p-2 rounded-md hover:bg-[#FBEAEA] transition"
+            onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(user.id);
+            }}
+            className="p-2 rounded-md hover:bg-[#EEF3FA]"
             >
-              <Trash2 size={16} className="text-red-500" />
+            <Pencil size={16} className="text-[#4A6FA5]" />
             </button>
+        </td>
 
-          </td>
+        {/* Delete */}
+        <td className="text-center">
+            <button
+            onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(user.id);
+            }}
+            className="p-2 rounded-md hover:bg-[#FBEAEA]"
+            >
+            <Trash2 size={16} className="text-red-500" />
+            </button>
+        </td>
 
         </tr>
-      ))}
+
+
+        {/* EXPANDED DETAILS ROW */}
+        {expandedId === user.id && (
+        <tr className="bg-[#F9FBFE]">
+
+            <td
+            colSpan={tab === "Student" ? 5 : 4}
+            className="px-6 py-4 text-sm text-[#2A4A75]"
+            >
+
+            {tab === "Student" && (
+                <div className="flex gap-10">
+                <div>
+                    <span className="font-medium">Program:</span> {user.program || "-"}
+                </div>
+                </div>
+            )}
+
+            {tab === "Faculty" && (
+                <div className="flex flex-col gap-2">
+
+                <div>
+                    <span className="font-medium">Department:</span> {user.dept || "-"}
+                </div>
+
+                <div>
+                    <span className="font-medium">Location:</span> {user.location || "-"}
+                </div>
+
+                <div>
+                    <span className="font-medium">Subjects:</span> {user.subjects || "-"}
+                </div>
+
+                </div>
+            )}
+
+            </td>
+
+        </tr>
+        )}
+
+    </React.Fragment>
+
+    ))}
 
     </tbody>
+
+
+    {/* ----------------------- */}
+
 
   </table>
 
