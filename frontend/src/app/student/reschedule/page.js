@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Calendar, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
-export default function ReschedulePage() {
+function RescheduleContent() {
   const searchParams = useSearchParams();
   const facultyName = searchParams.get("name") || "Dr. Raju";
 
@@ -122,5 +122,12 @@ export default function ReschedulePage() {
         </div>
       </div>
     </div>
+  );
+}
+export default function ReschedulePage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+      <RescheduleContent />
+    </Suspense>
   );
 }
