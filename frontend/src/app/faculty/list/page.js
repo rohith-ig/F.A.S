@@ -5,6 +5,17 @@ import { useState } from "react";
 export default function ViewAppointmentPage() {
   const [activeTab, setActiveTab] = useState("pending");
 
+  const handleReschedule = (appointment) => {
+  alert(
+    `Reschedule request sent to ${appointment.student}. Student will receive an email to choose a new slot.`
+  );
+
+  // remove appointment from scheduled list
+  setScheduledAppointments((prev) =>
+    prev.filter((appt) => appt.id !== appointment.id)
+  );
+};
+
   const pendingAppointments = [
     {
       id: 1,
@@ -24,26 +35,47 @@ export default function ViewAppointmentPage() {
     },
   ];
 
-  const scheduledAppointments = [
+  const [scheduledAppointments, setScheduledAppointments] = useState([
+  {
+    id: 3,
+    student: "Rahul Mehta",
+    topic: "Internship Guidance",
+    date: "10 Feb 2026",
+    time: "11:00 AM",
+    mode: "Virtual",
+  },
+]);
+
+  const historyAppointments = [
     {
-      id: 3,
-      student: "Rahul Mehta",
-      topic: "Internship Guidance",
-      date: "10 Feb 2026",
-      time: "11:00 AM",
+      id: 4,
+      student: "Priya Nair",
+      topic: "Research Guidance",
+      date: "5 Feb 2026",
+      time: "3:00 PM",
+      mode: "In-Person",
+    },
+    {
+      id: 5,
+      student: "Aditya Verma",
+      topic: "Thesis Discussion",
+      date: "3 Feb 2026",
+      time: "1:30 PM",
       mode: "Virtual",
     },
   ];
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#F7F9FC] px-4 overflow-hidden">
+      
       {/* Background blobs */}
       <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-[#4A6FA5]/20 rounded-full blur-3xl" />
       <div className="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-[#2A4A75]/20 rounded-full blur-3xl" />
 
       {/* Main Card */}
       <div className="relative w-full max-w-[900px] bg-white border border-[#E0E0E0] rounded-2xl shadow-md p-8 md:p-12">
-        {/* Header with Icon */}
+
+        {/* Header */}
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 flex items-center justify-center bg-[#4A6FA5] text-white font-bold rounded-sm text-lg">
             FS
@@ -51,16 +83,17 @@ export default function ViewAppointmentPage() {
           <h1 className="text-4xl font-bold text-[#1F3A5F]">Faculty Scheduler</h1>
         </div>
 
-        {/* Subheading */}
-        <p className="text-lg text-[#2A4A75] mt-2 font-medium">Faculty Appointment Manager</p>
+        <p className="text-lg text-[#2A4A75] mt-2 font-medium">
+          Faculty Dashboard
+        </p>
 
-        {/* Description */}
         <p className="text-base text-[#2A4A75] mt-2">
           Review pending requests and manage your scheduled appointments
         </p>
 
         {/* Tabs */}
         <div className="mt-8 flex border-b border-[#E0E0E0]">
+
           <button
             onClick={() => setActiveTab("pending")}
             className={`px-6 py-3 text-lg font-medium transition ${
@@ -82,10 +115,23 @@ export default function ViewAppointmentPage() {
           >
             Scheduled Appointments
           </button>
+
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`ml-6 px-6 py-3 text-lg font-medium transition ${
+              activeTab === "history"
+                ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
+                : "text-[#4A6FA5] hover:text-[#1F3A5F]"
+            }`}
+          >
+            History
+          </button>
+
         </div>
 
         {/* Content */}
         <div className="mt-8 space-y-6">
+
           {activeTab === "pending" &&
             (pendingAppointments.length ? (
               pendingAppointments.map((appt) => (
@@ -98,18 +144,32 @@ export default function ViewAppointmentPage() {
           {activeTab === "scheduled" &&
             (scheduledAppointments.length ? (
               scheduledAppointments.map((appt) => (
-                <AppointmentCard key={appt.id} data={appt} />
-              ))
+                <AppointmentCard
+                key={appt.id}
+                data={appt}
+                showReschedule={true}
+                onReschedule={() => handleReschedule(appt)} />
+            ))
             ) : (
               <EmptyState text="No scheduled appointments." />
             ))}
+
+          {activeTab === "history" &&
+            (historyAppointments.length ? (
+              historyAppointments.map((appt) => (
+                <AppointmentCard key={appt.id} data={appt} />
+              ))
+            ) : (
+              <EmptyState text="No past appointments." />
+            ))}
+
         </div>
       </div>
     </div>
   );
 }
 
-function AppointmentCard({ data }) {
+function AppointmentCard({ data, showReschedule, onReschedule }) {
   return (
     <div className="border border-[#E0E0E0] rounded-2xl p-6 bg-white hover:shadow-md transition">
       <div className="flex justify-between items-start">
@@ -129,6 +189,16 @@ function AppointmentCard({ data }) {
         <span>{data.date}</span>
         <span>{data.time}</span>
       </div>
+      {showReschedule && (
+  <div className="mt-4">
+    <button
+      onClick={onReschedule}
+      className="px-4 py-2 text-sm bg-[#1F3A5F] text-white rounded-lg hover:bg-[#2A4A75]"
+    >
+      Request Reschedule
+    </button>
+  </div>
+)}
     </div>
   );
 }
