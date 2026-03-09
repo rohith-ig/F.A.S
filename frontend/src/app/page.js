@@ -9,9 +9,10 @@ const inter = Inter({
 export default function FacultySchedulerHero() {
   const handleGoogleLogin = () => {
     console.log("Google login initiated");
-    alert(
-      "Google OAuth integration would be implemented here.\n\nIn production, this would redirect to Google authentication."
-    );
+    const clientId = "575078222055-4m6n7tq9mqssatseb92cs5qji8r8n5gn.apps.googleusercontent.com";
+    const redirectUri = "http://localhost:6969/api/auth/callback";
+    const link = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email profile`;
+    window.location.href = link;
   };
 
   return (
