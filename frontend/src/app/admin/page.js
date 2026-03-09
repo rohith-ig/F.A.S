@@ -38,26 +38,8 @@ const features = [
 
 export default function AdminDashboard() {
   return (
-    <main className="min-h-screen bg-[#F7F9FC] px-4 py-10">
+    <main className="min-h-screen bg-[#F7F9FC] px-4">
       <section className="mx-auto w-full max-w-6xl">
-        <div className="mb-4">
-          <BackArrowButton />
-        </div>
-
-        <header className="mb-8 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#1F3A5F] text-white font-semibold">
-            FS
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[#1F3A5F]">
-              Admin Dashboard
-            </h1>
-            <p className="text-sm text-[#5A6C7D]">
-              Manage users, support operations, and scheduling infrastructure.
-            </p>
-          </div>
-        </header>
-
         {/* Stats */}
         <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-lg border border-[#DCE3ED] bg-white px-4 py-3 shadow-sm">

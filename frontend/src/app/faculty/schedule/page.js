@@ -128,6 +128,10 @@ export default function FacultyScheduleViewPage() {
   const [today] = useState(() => new Date());
   const [visibleMonth, setVisibleMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedDateKey, setSelectedDateKey] = useState(toDateKey(today));
+
+  // Master View Tab
+  const [activeTab, setActiveTab] = useState("agenda"); // "agenda", "availability", "busy"
+
   const [customStart, setCustomStart] = useState("5:00 PM");
   const [customEnd, setCustomEnd] = useState("5:30 PM");
   const [availabilityTab, setAvailabilityTab] = useState("set");
@@ -216,17 +220,45 @@ export default function FacultyScheduleViewPage() {
   return (
     <main className="min-h-screen bg-[#F7F9FC] px-4">
       <section className="mx-auto w-full max-w-6xl space-y-6">
-        <header className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
-          <p className="text-xs uppercase tracking-[0.12em] text-[#6C8096]">Faculty</p>
-          <h1 className="mt-1 text-2xl font-bold text-[#1F3A5F]">View Schedule</h1>
-          <p className="mt-2 text-sm text-[#5A6C7D]">
-            Click a day to view appointments and department-assigned items. Availability can be set
-            only for today and the next 7 days.
-          </p>
+        <header className="rounded-2xl border border-[#DCE3ED] bg-white p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.12em] text-[#6C8096] font-bold">Faculty Dashboard</p>
+              <h1 className="mt-1 text-2xl font-bold text-[#1F3A5F]">Schedule & Availability</h1>
+              <p className="mt-2 text-sm text-[#5A6C7D]">
+                Select a day from the calendar to view appointments, manage slots, or set exceptions.
+              </p>
+            </div>
+
+            <div className="flex overflow-hidden rounded-xl border border-[#C8D3E0] bg-[#F8FAFC] p-1 shadow-inner h-[46px]">
+              <button
+                type="button"
+                onClick={() => setActiveTab("agenda")}
+                className={`flex-1 rounded-lg px-5 text-sm font-semibold transition-all ${activeTab === "agenda" ? "bg-white text-[#1F3A5F] shadow-sm" : "text-[#5A6C7D] hover:text-[#1F3A5F]"}`}
+              >
+                My Agenda
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("availability")}
+                className={`flex-1 rounded-lg px-5 text-sm font-semibold transition-all ${activeTab === "availability" ? "bg-white text-[#1F3A5F] shadow-sm" : "text-[#5A6C7D] hover:text-[#1F3A5F]"}`}
+              >
+                Set Availability
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("busy")}
+                className={`flex-1 rounded-lg px-5 text-sm font-semibold transition-all ${activeTab === "busy" ? "bg-white text-[#1F3A5F] shadow-sm" : "text-[#5A6C7D] hover:text-[#1F3A5F]"}`}
+              >
+                Override & Busy
+              </button>
+            </div>
+          </div>
         </header>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* ALWAYS VISIBLE: The Calendar Mini-map (Occupies 5 cols on large screens) */}
+          <article className="lg:col-span-5 rounded-2xl border border-[#DCE3ED] bg-white p-6 shadow-sm h-fit">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#1F3A5F]">Calendar</h2>
               <div className="flex gap-2">
@@ -286,18 +318,16 @@ export default function FacultyScheduleViewPage() {
                     key={dateKey}
                     type="button"
                     onClick={() => setSelectedDateKey(dateKey)}
-                    className={`relative h-11 rounded-md border text-sm transition ${
-                      isSelected
-                        ? "border-[#1F3A5F] bg-[#1F3A5F] text-white"
-                        : "border-[#DCE3ED] bg-white text-[#1F3A5F] hover:bg-[#F3F6FA]"
-                    }`}
+                    className={`relative h-11 rounded-md border text-sm transition ${isSelected
+                      ? "border-[#1F3A5F] bg-[#1F3A5F] text-white"
+                      : "border-[#DCE3ED] bg-white text-[#1F3A5F] hover:bg-[#F3F6FA]"
+                      }`}
                   >
                     {date.getDate()}
                     {(dayAppointments > 0 || dayAssignments > 0) && (
                       <span
-                        className={`absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full ${
-                          isSelected ? "bg-white" : "bg-[#4A6FA5]"
-                        }`}
+                        className={`absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full ${isSelected ? "bg-white" : "bg-[#4A6FA5]"
+                          }`}
                       />
                     )}
                   </button>
@@ -306,309 +336,403 @@ export default function FacultyScheduleViewPage() {
             </div>
           </article>
 
-          <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-[#1F3A5F]">{formatDateLong(selectedDate)}</h2>
-            <p className="mt-1 text-sm text-[#5A6C7D]">Appointments and department-assigned schedule.</p>
 
-            <div className="mt-4 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-4">
-              <h3 className="text-sm font-semibold text-[#1F3A5F]">Appointments</h3>
-              {isBeyondWindow ? (
-                <p className="mt-2 text-sm text-[#5A6C7D]">
-                  Outside 7-day window: appointment slots are not open yet.
-                </p>
-              ) : appointmentsForDay.length === 0 ? (
-                <p className="mt-2 text-sm text-[#5A6C7D]">No appointments for this day.</p>
-              ) : (
-                <div className="mt-2 space-y-2">
-                  {appointmentsForDay.map((item) => (
-                    <div key={item.id} className="rounded-md border border-[#DCE3ED] bg-white p-3 text-sm">
-                      <p className="font-semibold text-[#1F3A5F]">{item.title}</p>
-                      <p className="text-[#5A6C7D]">{item.time} · {item.student}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          {activeTab === "agenda" && (
+            <article className="lg:col-span-7 rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
+              <h2 className="text-lg font-semibold text-[#1F3A5F]">{formatDateLong(selectedDate)}</h2>
+              <p className="mt-1 text-sm text-[#5A6C7D]">Appointments and department-assigned schedule.</p>
 
-            <div className="mt-3 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-4">
-              <h3 className="text-sm font-semibold text-[#1F3A5F]">Department Assigned Schedule</h3>
-              {departmentItemsForDay.length === 0 ? (
-                <p className="mt-2 text-sm text-[#5A6C7D]">No department assignments for this day.</p>
-              ) : (
-                <div className="mt-2 space-y-2">
-                  {departmentItemsForDay.map((item) => (
-                    <div key={`${item.title}-${item.time}`} className="rounded-md border border-[#DCE3ED] bg-white p-3 text-sm">
-                      <p className="font-semibold text-[#1F3A5F]">{item.title}</p>
-                      <p className="text-[#5A6C7D]">{item.kind} · {item.time} · {item.place}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </article>
-        </section>
-
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-[#1F3A5F]">Set Availability</h2>
-            <p className="mt-1 text-sm text-[#5A6C7D]">
-              Faculty can set or remove slots only for today and next 7 days.
-            </p>
-            <p className="mt-1 text-xs text-[#6E8196]">
-              {canEditAvailability
-                ? "Editing enabled for this date."
-                : isPastDate
-                  ? "Past date: read-only."
-                  : "Beyond 7 days: read-only (department assignments only)."}
-            </p>
-
-            <div className="mt-4 flex overflow-hidden rounded-md border border-[#C8D3E0]">
-              <button
-                type="button"
-                onClick={() => setAvailabilityTab("set")}
-                className={`flex-1 px-4 py-2 text-sm ${availabilityTab === "set" ? "bg-[#1F3A5F] text-white" : "bg-white text-[#1F3A5F]"}`}
-              >
-                Set Availability
-              </button>
-              <button
-                type="button"
-                onClick={() => setAvailabilityTab("overview")}
-                className={`flex-1 px-4 py-2 text-sm ${availabilityTab === "overview" ? "bg-[#1F3A5F] text-white" : "bg-white text-[#1F3A5F]"}`}
-              >
-                Available and Booked
-              </button>
-            </div>
-
-            {availabilityTab === "set" && (
-              <>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {quickSlotTemplates.map((slot) => {
-                    const selected = draftSlots.includes(slot);
-                    const isBlocked = isSlotBlocked(slot);
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => toggleSlot(slot)}
-                        disabled={!canEditAvailability || isBlocked}
-                        className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                          isBlocked
-                            ? "border-[#E4B8B8] bg-[#FDECEC] text-[#B05555]"
-                            : selected
-                              ? "border-[#1F3A5F] bg-[#1F3A5F] text-white"
-                              : "border-[#C8D3E0] bg-white text-[#2A4A75]"
-                        } ${!canEditAvailability || isBlocked ? "opacity-70" : "hover:bg-[#F3F6FA]"}`}
-                      >
-                        {slot}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  <select
-                    value={customStart}
-                    onChange={(e) => setCustomStart(e.target.value)}
-                    className="rounded-md border border-[#D4DDE8] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none"
-                    disabled={!canEditAvailability}
-                  >
-                    {timeOptions.map((time) => (
-                      <option key={`start-${time}`}>{time}</option>
+              <div className="mt-4 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-4">
+                <h3 className="text-sm font-semibold text-[#1F3A5F]">Appointments</h3>
+                {isBeyondWindow ? (
+                  <p className="mt-2 text-sm text-[#5A6C7D]">
+                    Outside 7-day window: appointment slots are not open yet.
+                  </p>
+                ) : appointmentsForDay.length === 0 ? (
+                  <p className="mt-2 text-sm text-[#5A6C7D]">No appointments for this day.</p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    {appointmentsForDay.map((item) => (
+                      <div key={item.id} className="rounded-md border border-[#DCE3ED] bg-white p-3 text-sm">
+                        <p className="font-semibold text-[#1F3A5F]">{item.title}</p>
+                        <p className="text-[#5A6C7D]">{item.time} · {item.student}</p>
+                      </div>
                     ))}
-                  </select>
-                  <select
-                    value={customEnd}
-                    onChange={(e) => setCustomEnd(e.target.value)}
-                    className="rounded-md border border-[#D4DDE8] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none"
-                    disabled={!canEditAvailability}
-                  >
-                    {timeOptions.map((time) => (
-                      <option key={`end-${time}`}>{time}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={addCustomSlot}
-                    disabled={!canEditAvailability}
-                    className={`rounded-md px-4 py-2 text-sm text-white ${
-                      canEditAvailability ? "bg-[#1F3A5F] hover:bg-[#2A4A75]" : "bg-[#9AAABC]"
-                    }`}
-                  >
-                    Add
-                  </button>
-                </div>
-
-                <div className="mt-4 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-3">
-                  <p className="text-sm font-semibold text-[#1F3A5F]">Selected Day Slots</p>
-                  {draftSlots.length === 0 ? (
-                    <p className="mt-2 text-sm text-[#5A6C7D]">No slots selected.</p>
-                  ) : (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {draftSlots.map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          onClick={() => canEditAvailability && toggleSlot(slot)}
-                          className="rounded-full border border-[#C8D3E0] bg-white px-3 py-1.5 text-sm text-[#2A4A75]"
-                        >
-                          {slot}
-                          {canEditAvailability ? " ×" : ""}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={saveAvailability}
-                    disabled={!canEditAvailability}
-                    className={`rounded-md px-4 py-2 text-sm text-white ${
-                      canEditAvailability ? "bg-[#1F3A5F] hover:bg-[#2A4A75]" : "bg-[#9AAABC]"
-                    }`}
-                  >
-                    Set Availability
-                  </button>
-                  {saveNote && <p className="text-sm text-[#2E7D42]">{saveNote}</p>}
-                </div>
-              </>
-            )}
-
-            {availabilityTab === "overview" && (
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <div className="min-h-[150px] rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-3">
-                  <p className="text-sm font-semibold text-[#1F3A5F]">Available Slots</p>
-                  {availabilityForDay.length === 0 ? (
-                    <p className="mt-2 text-sm text-[#5A6C7D]">No available slots set.</p>
-                  ) : (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {availabilityForDay.map((slot) => (
-                        <span
-                          key={slot}
-                          className="rounded-full border border-[#C8D3E0] bg-white px-3 py-1.5 text-sm text-[#2A4A75]"
-                        >
-                          {slot}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="min-h-[150px] rounded-md border border-[#E9C5C5] bg-[#FFF7F7] p-3">
-                  <p className="text-sm font-semibold text-[#9A3E3E]">Blocked Slots</p>
-                  {blockedRangesForDay.length === 0 ? (
-                    <p className="mt-2 text-sm text-[#7B5A5A]">No blocked slots for this day.</p>
-                  ) : (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {blockedRangesForDay.map((slot) => (
-                        <span
-                          key={`blocked-${slot}`}
-                          className="rounded-full border border-[#E4B8B8] bg-white px-3 py-1.5 text-sm text-[#B05555]"
-                        >
-                          {slot}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            )}
-          </article>
 
-          <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-semibold text-[#1F3A5F]">Busy Status</h2>
-            <p className="mt-1 text-sm text-[#5A6C7D]">
-              Set busy status for this date. This action will trigger conflict handling in workflow.
-            </p>
+              <div className="mt-3 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-4">
+                <h3 className="text-sm font-semibold text-[#1F3A5F]">Department Assigned Schedule</h3>
+                {departmentItemsForDay.length === 0 ? (
+                  <p className="mt-2 text-sm text-[#5A6C7D]">No department assignments for this day.</p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    {departmentItemsForDay.map((item) => (
+                      <div key={`${item.title}-${item.time}`} className="rounded-md border border-[#DCE3ED] bg-white p-3 text-sm">
+                        <p className="font-semibold text-[#1F3A5F]">{item.title}</p>
+                        <p className="text-[#5A6C7D]">{item.kind} · {item.time} · {item.place}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          )}
 
-            <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <select
-                value={busyStart}
-                onChange={(e) => setBusyStart(e.target.value)}
-                className="rounded-md border border-[#D4DDE8] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none"
-                disabled={!canEditAvailability}
-              >
-                {timeOptions.map((time) => (
-                  <option key={`busy-start-${time}`}>{time}</option>
-                ))}
-              </select>
-              <select
-                value={busyEnd}
-                onChange={(e) => setBusyEnd(e.target.value)}
-                className="rounded-md border border-[#D4DDE8] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none"
-                disabled={!canEditAvailability}
-              >
-                {timeOptions.map((time) => (
-                  <option key={`busy-end-${time}`}>{time}</option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="button"
-              className={`mt-3 rounded-md px-4 py-2 text-sm text-white ${
-                canEditAvailability && isBusyRangeValid
-                  ? "bg-[#1F3A5F] hover:bg-[#2A4A75]"
-                  : "bg-[#9AAABC]"
-              }`}
-              disabled={!canEditAvailability || !isBusyRangeValid}
-              onClick={() => {}}
-            >
-              Set Busy Status
-            </button>
-
-            <div className="mt-3 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-3 text-sm text-[#5A6C7D]">
-              {canEditAvailability && isBusyRangeValid
-                ? `Selected busy window: ${busyRange}.`
-                : canEditAvailability
-                  ? "Choose a valid busy time range."
-                : "Busy status is read-only for this day."}
-            </div>
-
-            <div className="mt-4 rounded-md border border-[#DCE3ED] bg-[#FBFCFE] p-3">
-              <p className="text-sm font-semibold text-[#1F3A5F]">Conflict Handling Options</p>
-              <p className="mt-1 text-xs text-[#6E8196]">
-                Choose how to handle requests affected by this busy period.
+          {/* TAB 2: SET AVAILABILITY */}
+          {activeTab === "availability" && (
+            <article className="lg:col-span-7 rounded-2xl border border-[#DCE3ED] bg-white p-6 shadow-sm animate-fade-in">
+              <h2 className="text-lg font-bold text-[#1F3A5F]">Manage Availability for {formatDateLong(selectedDate)}</h2>
+              <p className="mt-1 text-sm text-[#5A6C7D]">
+                Faculty can set or remove slots only for today and next 7 days.
               </p>
-              <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-3">
+              <p className="mt-1 text-xs text-[#6E8196]">
+                {canEditAvailability
+                  ? "Editing enabled for this date."
+                  : isPastDate
+                    ? "Past date: read-only."
+                    : "Beyond 7 days: read-only (department assignments only)."}
+              </p>
+
+              <div className="mt-4 flex overflow-hidden rounded-md border border-[#C8D3E0]">
                 <button
                   type="button"
-                  onClick={() => setBusyAction("cancel")}
-                  className={`rounded-md border px-3 py-2 text-sm transition ${
-                    busyAction === "cancel"
-                      ? "border-[#B05555] bg-[#B05555] text-white"
-                      : "border-[#E4B8B8] bg-white text-[#B05555]"
-                  }`}
+                  onClick={() => setAvailabilityTab("set")}
+                  className={`flex-1 px-4 py-2 text-sm ${availabilityTab === "set" ? "bg-[#1F3A5F] text-white" : "bg-white text-[#1F3A5F]"}`}
                 >
-                  Cancel All Requests
+                  Set Availability
                 </button>
                 <button
                   type="button"
-                  onClick={() => setBusyAction("reschedule")}
-                  className={`rounded-md border px-3 py-2 text-sm transition ${
-                    busyAction === "reschedule"
-                      ? "border-[#1F3A5F] bg-[#1F3A5F] text-white"
-                      : "border-[#C8D3E0] bg-white text-[#2A4A75]"
-                  }`}
+                  onClick={() => setAvailabilityTab("overview")}
+                  className={`flex-1 px-4 py-2 text-sm ${availabilityTab === "overview" ? "bg-[#1F3A5F] text-white" : "bg-white text-[#1F3A5F]"}`}
                 >
-                  Send Reschedule Requests
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBusyAction("manual")}
-                  className={`rounded-md border px-3 py-2 text-sm transition ${
-                    busyAction === "manual"
-                      ? "border-[#1F3A5F] bg-[#1F3A5F] text-white"
-                      : "border-[#C8D3E0] bg-white text-[#2A4A75]"
-                  }`}
-                >
-                  Manually Manage Each Request
+                  Available and Booked
                 </button>
               </div>
-            </div>
-          </article>
+
+              {availabilityTab === "set" && (
+                <div className="mt-6 flex flex-col gap-6">
+                  {/* Quick Slots */}
+                  <section>
+                    <h3 className="text-sm font-semibold text-[#1F3A5F] mb-3">Quick Slot Templates</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {quickSlotTemplates.map((slot) => {
+                        const selected = draftSlots.includes(slot);
+                        const isBlocked = isSlotBlocked(slot);
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            onClick={() => toggleSlot(slot)}
+                            disabled={!canEditAvailability || isBlocked}
+                            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${isBlocked
+                              ? "border border-[#E4B8B8] bg-[#FDECEC] text-[#B05555] cursor-not-allowed"
+                              : selected
+                                ? "bg-[#1F3A5F] text-white border border-[#1F3A5F]"
+                                : "border border-[#DCE3ED] bg-white text-[#2A4A75] hover:bg-[#F8FAFC]"
+                              } ${(!canEditAvailability || isBlocked) ? "opacity-60" : ""}`}
+                          >
+                            {slot}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </section>
+
+                  {/* Custom Slots */}
+                  <section>
+                    <h3 className="text-sm font-semibold text-[#1F3A5F] mb-3">Add Custom Slot</h3>
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <select
+                          value={customStart}
+                          onChange={(e) => setCustomStart(e.target.value)}
+                          className="w-full sm:w-32 rounded-lg border border-[#DCE3ED] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none focus:ring-2 focus:ring-[#1F3A5F]/20 focus:border-[#1F3A5F] transition"
+                          disabled={!canEditAvailability}
+                        >
+                          {timeOptions.map((time) => (
+                            <option key={`start-${time}`}>{time}</option>
+                          ))}
+                        </select>
+                        <span className="text-[#5A6C7D]">to</span>
+                        <select
+                          value={customEnd}
+                          onChange={(e) => setCustomEnd(e.target.value)}
+                          className="w-full sm:w-32 rounded-lg border border-[#DCE3ED] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none focus:ring-2 focus:ring-[#1F3A5F]/20 focus:border-[#1F3A5F] transition"
+                          disabled={!canEditAvailability}
+                        >
+                          {timeOptions.map((time) => (
+                            <option key={`end-${time}`}>{time}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={addCustomSlot}
+                        disabled={!canEditAvailability}
+                        className={`w-full sm:w-auto rounded-md px-5 py-2 text-sm font-medium transition-colors ${canEditAvailability ? "bg-[#F3F6FA] text-[#1F3A5F] border border-[#DCE3ED] hover:bg-[#E2E8F0]" : "bg-[#F3F6FA] text-[#9AAABC] border border-[#E2E8F0] cursor-not-allowed"
+                          }`}
+                      >
+                        Add Custom Slot
+                      </button>
+                    </div>
+                  </section>
+
+                  {/* Selected Slots */}
+                  <section className="rounded-xl border border-[#DCE3ED] bg-[#FBFCFE] p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-[#1F3A5F]">Draft Selections</h3>
+                      {draftSlots.length > 0 && (
+                        <span className="bg-[#EBF1F7] text-[#1F3A5F] text-xs font-semibold px-2 py-1 rounded-full">{draftSlots.length} slots</span>
+                      )}
+                    </div>
+
+                    {draftSlots.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-6 text-center border border-dashed border-[#DCE3ED] bg-white rounded-md">
+                        <p className="text-sm text-[#5A6C7D]">No slots selected yet.</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {draftSlots.map((slot) => (
+                          <div
+                            key={slot}
+                            className="flex items-center gap-1 rounded-md border border-[#C8D3E0] bg-white pl-3 pr-1 py-1 text-sm text-[#2A4A75]"
+                          >
+                            <span className="font-medium">{slot}</span>
+                            {canEditAvailability && (
+                              <button
+                                type="button"
+                                onClick={() => toggleSlot(slot)}
+                                className="ml-1 rounded-md p-1 text-[#9AAABC] hover:bg-[#F3F6FA] hover:text-[#B05555] transition-colors"
+                                aria-label="Remove slot"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  <div className="flex flex-col items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={saveAvailability}
+                      disabled={!canEditAvailability}
+                      className={`w-full sm:w-auto min-w-[200px] rounded-md px-6 py-2.5 text-sm font-semibold transition-colors ${canEditAvailability
+                        ? "bg-[#1F3A5F] text-white hover:bg-[#2A4A75]"
+                        : "bg-[#9AAABC] text-white cursor-not-allowed"
+                        }`}
+                    >
+                      Save Availability
+                    </button>
+                    {saveNote && (
+                      <div className="text-sm font-medium text-[#2E7D42]">
+                        {saveNote}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {availabilityTab === "overview" && (
+                <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  {/* Available Slots */}
+                  <div className="flex flex-col min-h-[150px] rounded-md border border-[#DCE3ED] bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#F3F6FA]">
+                      <h3 className="text-sm font-semibold text-[#1F3A5F]">Available Slots</h3>
+                      <span className="text-xs font-semibold text-[#5A6C7D] bg-[#F3F6FA] px-2.5 py-1 rounded-md">{availabilityForDay.length}</span>
+                    </div>
+
+                    {availabilityForDay.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center">
+                        <p className="text-sm text-[#5A6C7D]">No available slots set.</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {availabilityForDay.map((slot) => (
+                          <span
+                            key={slot}
+                            className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-[#F8FAFC] text-[#2A4A75] border border-[#C8D3E0]"
+                          >
+                            {slot}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Blocked Slots */}
+                  <div className="flex flex-col min-h-[150px] rounded-md border border-[#E9C5C5] bg-[#FFFBFB] p-5 shadow-sm">
+                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#FDECEC]">
+                      <h3 className="text-sm font-semibold text-[#9A3E3E]">Blocked Slots</h3>
+                      <span className="text-xs font-semibold text-[#9A3E3E] bg-[#FDECEC] px-2.5 py-1 rounded-md">{blockedRangesForDay.length}</span>
+                    </div>
+
+                    {blockedRangesForDay.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center">
+                        <p className="text-sm text-[#7B5A5A]">No blocked slots.</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {blockedRangesForDay.map((slot) => (
+                          <span
+                            key={`blocked-${slot}`}
+                            className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium bg-[#FDECEC] text-[#B05555] border border-[#E4B8B8]"
+                          >
+                            {slot}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </article>
+          )}
+
+          {/* TAB 3: OVERRIDE & BUSY */}
+          {activeTab === "busy" && (
+            <article className="lg:col-span-7 rounded-2xl border border-[#DCE3ED] bg-white p-6 shadow-sm animate-fade-in">
+              <h2 className="text-lg font-bold text-[#1F3A5F]">Set Busy Status for {formatDateLong(selectedDate)}</h2>
+              <p className="mt-1 text-sm text-[#5A6C7D]">
+                Set busy status for this date. This action will trigger conflict handling in workflow.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-6">
+                {/* Time Selection */}
+                <section>
+                  <h3 className="text-sm font-semibold text-[#1F3A5F] mb-3">Time Window</h3>
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <select
+                        value={busyStart}
+                        onChange={(e) => setBusyStart(e.target.value)}
+                        className="w-full sm:w-40 rounded-lg border border-[#DCE3ED] bg-white px-3 py-2.5 text-sm text-[#1F3A5F] outline-none focus:ring-2 focus:ring-[#B05555]/20 focus:border-[#B05555] transition"
+                        disabled={!canEditAvailability}
+                      >
+                        {timeOptions.map((time) => (
+                          <option key={`busy-start-${time}`}>{time}</option>
+                        ))}
+                      </select>
+                      <span className="text-[#5A6C7D] font-medium">to</span>
+                      <select
+                        value={busyEnd}
+                        onChange={(e) => setBusyEnd(e.target.value)}
+                        className="w-full sm:w-40 rounded-lg border border-[#DCE3ED] bg-white px-3 py-2.5 text-sm text-[#1F3A5F] outline-none focus:ring-2 focus:ring-[#B05555]/20 focus:border-[#B05555] transition"
+                        disabled={!canEditAvailability}
+                      >
+                        {timeOptions.map((time) => (
+                          <option key={`busy-end-${time}`}>{time}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Validation Note */}
+                <section>
+                  <div className={`flex items-start gap-3 rounded-md border p-4 transition-colors ${canEditAvailability && isBusyRangeValid
+                      ? "border-[#E4B8B8] bg-[#FDECEC]"
+                      : canEditAvailability
+                        ? "border-[#FFE5B4] bg-[#FFF8ED]"
+                        : "border-[#DCE3ED] bg-[#FBFCFE]"
+                    }`}>
+                    <div>
+                      <h4 className={`text-sm font-semibold ${canEditAvailability && isBusyRangeValid
+                          ? "text-[#9A3E3E]"
+                          : canEditAvailability
+                            ? "text-[#986A26]"
+                            : "text-[#5A6C7D]"
+                        }`}>
+                        {canEditAvailability && isBusyRangeValid
+                          ? "Review Busy Override"
+                          : canEditAvailability
+                            ? "Invalid Time Range"
+                            : "Status Read-Only"}
+                      </h4>
+                      <p className={`mt-0.5 text-sm ${canEditAvailability && isBusyRangeValid
+                          ? "text-[#B05555]"
+                          : canEditAvailability
+                            ? "text-[#B07B2D]"
+                            : "text-[#6E8196]"
+                        }`}>
+                        {canEditAvailability && isBusyRangeValid
+                          ? `You are about to mark the time between ${busyRange} as busy.`
+                          : canEditAvailability
+                            ? "Please ensure the start time is before the end time to proceed."
+                            : "You do not have permission to edit busy status for this date."}
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Conflict Handling Options */}
+                <section>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-[#1F3A5F]">Conflict Handling Strategy</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                    <button
+                      type="button"
+                      onClick={() => setBusyAction("cancel")}
+                      className={`relative flex flex-col items-center p-4 rounded-md border transition-all ${busyAction === "cancel"
+                        ? "border-[#B05555] bg-[#FDECEC]"
+                        : "border-[#DCE3ED] bg-white hover:border-[#E4B8B8] hover:bg-[#FFFBFB]"
+                        }`}
+                    >
+                      <span className={`font-semibold text-sm text-center ${busyAction === "cancel" ? "text-[#9A3E3E]" : "text-[#5A6C7D]"}`}>Cancel All</span>
+                      <span className={`text-xs text-center mt-1 ${busyAction === "cancel" ? "text-[#B05555]" : "text-[#9AAABC]"}`}>Cancel overlapping requests immediately</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setBusyAction("reschedule")}
+                      className={`relative flex flex-col items-center p-4 rounded-md border transition-all ${busyAction === "reschedule"
+                        ? "border-[#1F3A5F] bg-[#F8FAFC]"
+                        : "border-[#DCE3ED] bg-white hover:border-[#C8D3E0] hover:bg-[#F8FAFC]"
+                        }`}
+                    >
+                      <span className={`font-semibold text-sm text-center ${busyAction === "reschedule" ? "text-[#1F3A5F]" : "text-[#5A6C7D]"}`}>Auto-Reschedule</span>
+                      <span className={`text-xs text-center mt-1 ${busyAction === "reschedule" ? "text-[#2A4A75]" : "text-[#9AAABC]"}`}>Send requests to pick a new time</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setBusyAction("manual")}
+                      className={`relative flex flex-col items-center p-4 rounded-md border transition-all ${busyAction === "manual"
+                        ? "border-[#1F3A5F] bg-[#F8FAFC]"
+                        : "border-[#DCE3ED] bg-white hover:border-[#C8D3E0] hover:bg-[#F8FAFC]"
+                        }`}
+                    >
+                      <span className={`font-semibold text-sm text-center ${busyAction === "manual" ? "text-[#1F3A5F]" : "text-[#5A6C7D]"}`}>Manual Triage</span>
+                      <span className={`text-xs text-center mt-1 ${busyAction === "manual" ? "text-[#2A4A75]" : "text-[#9AAABC]"}`}>Review each conflict case by case</span>
+                    </button>
+                  </div>
+                </section>
+
+                {/* Submit Container */}
+                <div className="flex flex-col items-center gap-3 pt-2">
+                  <button
+                    type="button"
+                    className={`w-full sm:w-auto min-w-[200px] rounded-md px-6 py-2.5 text-sm font-semibold transition-colors ${canEditAvailability && isBusyRangeValid
+                      ? "bg-[#B05555] text-white hover:bg-[#9A3E3E]"
+                      : "bg-[#9AAABC] text-white cursor-not-allowed"
+                      }`}
+                    disabled={!canEditAvailability || !isBusyRangeValid}
+                    onClick={() => { }}
+                  >
+                    Confirm Busy Status
+                  </button>
+                </div>
+              </div>
+            </article>
+          )}
         </section>
       </section>
-    </main>
+    </main >
   );
 }
