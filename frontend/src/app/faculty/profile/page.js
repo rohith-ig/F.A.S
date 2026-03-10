@@ -1,5 +1,5 @@
 "use client";
-import { User, Mail, BookOpen, MapPin, ShieldCheck, Hash, UserSquare2, X } from "lucide-react";
+import { User, Mail, BookOpen, MapPin, Hash, UserSquare2, X, LogOut } from "lucide-react";
 import { useState } from "react";
 
 const allCourses = [
@@ -41,9 +41,15 @@ export default function FacultyProfilePage() {
                     <h2 className="text-xl font-bold text-[#1F3A5F] px-4 text-center">Dr. Alan Turing</h2>
                     <p className="text-sm font-medium text-[#4A6FA5] mb-2 px-4 text-center">Associate Professor</p>
 
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold mb-6">
-                        <ShieldCheck size={14} /> Verified Faculty
-                    </span>
+                    <button
+                        onClick={() => {
+                            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                            window.location.href = "/";
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-md border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm font-medium transition-colors mb-6 cursor-pointer shadow-sm"
+                    >
+                        <LogOut size={16} /> Sign Out
+                    </button>
 
                     <div className="w-full border-t border-[#F0F4F8] p-4 flex flex-col gap-3 text-sm">
                         <div className="flex items-center gap-3 text-[#5A6C7D]">
