@@ -6,26 +6,35 @@ const HandleAuth = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
     useEffect(() => {
-        const token = searchParams.get('token');
-        if (token) {
-            const decoded = jwtDecode(token);
-            localStorage.setItem('token', token);
-            localStorage.setItem('userId', decoded.userId);
-            document.cookie = `token=${token}; path=/; max-age=1800; samesite=lax`;
-            const role = decoded.role;
-            if (role === 'ADMIN') {
-                router.push('/admin/');
-            } else if (role === 'STUDENT') {
-                router.push('/user/');
-            } else if (role === 'FACULTY') {
-                router.push('/faculty/');
+        try {
+            const token = searchParams.get('token');
+            console.log(token)
+            if (token) {
+                const decoded = jwtDecode(token);
+                localStorage.setItem('token', token);
+                localStorage.setItem('userId', decoded.userId);
+                document.cookie = `token=${token}; path=/; max-age=1800; samesite=lax`;
+                const role = decoded.role;
+                if (role === 'ADMIN') {
+                    router.push('/admin/');
+                } else if (role === 'STUDENT') {
+                    router.push('/user/');
+                } else if (role === 'FACULTY') {
+                    router.replace('/faculty/');
+                } else {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userId');
+                    router.replace('/');
+                    return
+                }
             } else {
-                localStorage.removeItem('token');
-                localStorage.removeItem('userId');
-                router.push('/login');
+                router.push('/'); 
             }
-        } else {
-            return router.push('/login'); // Redirect to login if token is missing
+        } catch (error) {
+            console.error('Error handling authentication:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            router.replace('/');
         }
     }, []);
   
