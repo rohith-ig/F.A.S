@@ -26,6 +26,7 @@ model StudentProfile {
   designation String
   department  String
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointmentRequests AppointmentRequest[] 
 }
 
 model FacultyProfile {
@@ -34,6 +35,35 @@ model FacultyProfile {
   department  String
   designation String
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  appointmentRequests AppointmentRequest[] 
+  availabilities FacultyAvailability[]
+}
+
+model AppointmentRequest {
+  id         Int      @id @default(autoincrement())
+  studentId   Int
+  facultyId   Int
+  start      DateTime
+  duration   Int 
+  status      Status   @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  student     StudentProfile     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  faculty     FacultyProfile     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+}
+
+model FacultyAvailability {
+  id         Int      @id @default(autoincrement())
+  start     DateTime
+  end        DateTime
+  facultyId  Int
+  faculty    FacultyProfile  @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+}
+
+enum Status {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum Role {
