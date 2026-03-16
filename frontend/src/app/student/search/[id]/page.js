@@ -254,7 +254,14 @@ export default function BookAppointmentPage() {
                                      value={duration}
                                      min={10}
                                      max={(new Date(selectedSlot.end) - new Date(selectedSlot.start)) / 60000}
-                                     onChange={(e) => setDuration(Math.max(10, Math.min(e.target.value, (new Date(selectedSlot.end) - new Date(selectedSlot.start)) / 60000)))}
+                                     onChange={(e) => setDuration(e.target.value)}
+                                     onBlur={(e) => {
+                                         const maxDur = (new Date(selectedSlot.end) - new Date(selectedSlot.start)) / 60000;
+                                         let val = parseInt(e.target.value);
+                                         if (isNaN(val) || val < 10) val = 10;
+                                         if (val > maxDur) val = maxDur;
+                                         setDuration(val);
+                                     }}
                                      className="w-full rounded-md border border-[#DCE3ED] bg-[#FBFCFE] py-1.5 px-3 text-sm text-[#1F3A5F] font-bold outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] transition"
                                  />
                              </div>
