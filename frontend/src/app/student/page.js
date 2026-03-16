@@ -1,4 +1,6 @@
 import Link from "next/link";
+import api from "../../axios.js";
+
 import {
     Search,
     CalendarCheck,
@@ -57,7 +59,8 @@ const quickActions = [
     },
 ];
 
-export default function StudentDashboard() {
+export default async function StudentDashboard() {
+    const data = await api.get("/");
     return (
         <div className="mx-auto w-full max-w-6xl px-4">
             {/* Header Section */}

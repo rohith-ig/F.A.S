@@ -44,7 +44,9 @@ model AppointmentRequest {
   studentId   Int
   facultyId   Int
   start      DateTime
-  duration   Int 
+  end        DateTime
+  purpose   String
+  note      String?
   status      Status   @default(PENDING)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -64,6 +66,7 @@ enum Status {
   PENDING
   APPROVED
   REJECTED
+  CANCELLED
 }
 
 enum Role {
