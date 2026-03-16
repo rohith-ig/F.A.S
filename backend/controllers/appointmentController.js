@@ -92,6 +92,7 @@ const getAppointments = async (req, res) => {
                             department: true,
                             designation: true,
                             designation : true,
+                            rollNumber : true,
                             user : {
                                 select : { 
                                     name : true,

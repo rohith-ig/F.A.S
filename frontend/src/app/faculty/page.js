@@ -1,3 +1,4 @@
+'use client'
 import Link from "next/link";
 import {
     CalendarClock,
@@ -7,6 +8,9 @@ import {
     ArrowRight,
     Settings,
 } from "lucide-react";
+import api from "../../axios";
+import { useEffect, useState } from "react";
+
 
 const facultyAppointments = [
     {
@@ -62,6 +66,22 @@ const quickActions = [
 ];
 
 export default function FacultyDashboard() {
+    const [facultyAppointments, setFacultyAppointments] = useState([]);
+    useEffect(() => {
+        const fetchDetails = async () => {
+            try {
+                const response = await api.get('/appmt');
+                console.log(response);
+                setFacultyAppointments(response.data);
+            } catch (error) {
+                console.error('Error fetching faculty appointments:', error);
+            }
+        };
+
+        fetchDetails();
+    }, []);
+
+
     const pendingRequests = facultyAppointments.filter(apt => apt.status === 'Pending');
 
     return (
@@ -119,7 +139,7 @@ export default function FacultyDashboard() {
                             <div className="p-3 bg-amber-100 text-amber-700 rounded-lg">
                                 <Clock size={28} />
                             </div>
-                            <span className="text-4xl font-bold text-[#1F3A5F]">{pendingRequests.length}</span>
+                            <span className="text-4xl font-bold text-[#1F3A5F]">{facultyAppointments.filter(apt => apt.status === 'PENDING').length}</span>
                         </div>
                     </div>
                     <div className="rounded-xl border border-[#DCE3ED] bg-white p-5 shadow-sm">
@@ -142,19 +162,19 @@ export default function FacultyDashboard() {
                     </div>
 
                     <div className="bg-white rounded-xl border border-[#DCE3ED] shadow-sm overflow-hidden">
-                        {pendingRequests.length > 0 ? (
+                        {facultyAppointments.length > 0 ? (
                             <ul className="divide-y divide-[#DCE3ED]">
-                                {pendingRequests.map((apt) => (
+                                {facultyAppointments.filter(apt => apt.status === 'PENDING').map((apt) => (
                                     <li key={apt.id} className="p-5 hover:bg-[#F8FAFC] transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="flex items-start gap-4">
                                             <div className="bg-[#4A6FA5]/10 rounded-lg p-3 text-center min-w-[60px] border border-[#4A6FA5]/20">
-                                                <span className="block text-xs font-bold text-[#4A6FA5] uppercase">{apt.date.split(' ')[0]}</span>
-                                                <span className="block text-lg font-bold text-[#1F3A5F]">{apt.date.split(' ')[1].replace(',', '')}</span>
+                                                <span className="block text-xs font-bold text-[#4A6FA5] uppercase">{apt.start.split(' ')[0]}</span>
+                                                <span className="block text-lg font-bold text-[#1F3A5F]">{apt.end.split(' ')[1]}</span>
                                             </div>
                                             <div>
-                                                <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.studentName} <span className="text-sm font-normal text-[#5A6C7D]">({apt.studentId})</span></h4>
+                                                <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.student.user.name} <span className="text-sm font-normal text-[#5A6C7D]">({apt.student.rollNumber})</span></h4>
                                                 <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
-                                                    <Clock size={14} /> {apt.time} • {apt.purpose}
+                                                    <Clock size={14} /> {new Date(apt.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {apt.purpose}
                                                 </p>
                                             </div>
                                         </div>

@@ -47,7 +47,7 @@ const quickActions = [
         title: "Past Appointments",
         desc: "Review your pending requests and appointment history.",
         icon: CalendarCheck,
-        href: "/student/history", // 
+        href: "/student/history", 
         color: "bg-emerald-100 text-emerald-700",
     },
     {
@@ -60,7 +60,6 @@ const quickActions = [
 ];
 
 export default async function StudentDashboard() {
-    const data = await api.get("/");
     return (
         <div className="mx-auto w-full max-w-6xl px-4">
             {/* Header Section */}

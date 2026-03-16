@@ -5,6 +5,7 @@ const check = async (req, res, next) => {
     let token = req.headers['authorization'];
     if (!token) {
         res.status(401).json({ error: 'No token provided' });
+        console.log("Token Issue");
         return;
     }
     token = token.split(' ')[1];

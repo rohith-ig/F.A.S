@@ -3,7 +3,10 @@ const prisma = require('../config/database.js');
 
 const getAvailability = async (req, res) => {
     try {
-        const facId = Number(req.params.id);
+        let facId = req.body;
+        if (!facId) {
+            facId = req.user.facultyProfile.id;
+        }
         const availability = await prisma.facultyAvailability.findMany({
             where: { facultyId: facId,
                 start: {
@@ -33,6 +36,12 @@ const createAvailability = async (req, res) => {
         }
         if (new Date(start) >= new Date(end)) {
             return res.status(400).json({ error: 'Start time must be before end time' });
+        }
+        if (new Date(end) <= new Date()) {
+            return res.status(400).json({ error: 'End time must be in the future' });
+        }
+        if (new Date(start).getDate() > new Date().getDate() + 7)  {
+            return res.status(400).json({ error: 'Start time must be within the next 7 days' });
         }
         const current = await prisma.facultyAvailability.findFirst({
             where : {
