@@ -121,8 +121,8 @@ export default function BookAppointmentPage() {
     <div className="w-full h-[calc(100vh-64px)] bg-[#F4F7FB] flex flex-col items-center justify-center p-4">
       <Toaster position="top-center" reverseOrder={false} />
       
-      {/* Outer wrapper to restrict size but keep it big */}
-      <div className="w-full max-w-6xl h-full max-h-[850px] bg-white border border-[#DCE3ED] shadow-sm rounded-lg overflow-hidden flex flex-col">
+      {/* Outer wrapper restricted height and width */}
+      <div className="w-full max-w-5xl h-full max-h-[580px] bg-white border border-[#DCE3ED] shadow-sm rounded-lg overflow-hidden flex flex-col">
         
         {/* Header / Top Bar within Card */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8EEF5] bg-[#FBFCFE]">
@@ -151,14 +151,14 @@ export default function BookAppointmentPage() {
           
           {/* Left Panel - Timeline / Slots */}
           <div className="w-1/2 border-r border-[#E8EEF5] flex flex-col bg-white">
-            <div className="px-6 py-4 border-b border-[#E8EEF5]">
+            <div className="px-6 py-3 border-b border-[#E8EEF5]">
               <h2 className="text-base font-bold text-[#1F3A5F] flex items-center gap-2">
                 <Calendar size={18} className="text-[#4A6FA5]" /> Available Time Slots
               </h2>
               <p className="text-xs text-[#5A6C7D] mt-1">Select a slot to request an appointment. (Min 10 mins)</p>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+            <div className="flex-1 overflow-y-auto p-5 scrollbar-thin">
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
                 {availabilities.map((slot, index) => {
                     const start = new Date(slot.start);
@@ -171,10 +171,10 @@ export default function BookAppointmentPage() {
                             type="button"
                             key={index}
                             onClick={() => handleSlotSelect(slot)}
-                            className={`p-3 border rounded-lg text-left transition-all flex flex-col justify-between h-[84px] ${
+                            className={`p-3 border rounded-lg text-left transition-all flex flex-col justify-between h-[82px] ${
                                 isSelected 
-                                ? 'border-[#1F3A5F] bg-[#1F3A5F] text-white shadow-md' 
-                                : 'border-[#DCE3ED] bg-white hover:border-[#1F3A5F] hover:shadow-sm text-[#1F3A5F]'
+                                ? 'border-[#4A6FA5] bg-[#4A6FA5] text-white shadow-md' 
+                                : 'border-[#DCE3ED] bg-white hover:border-[#4A6FA5]/60 hover:shadow-sm text-[#1F3A5F]'
                             }`}
                         >
                             <div className="flex justify-between items-start">
@@ -210,25 +210,25 @@ export default function BookAppointmentPage() {
                </div>
             ) : (
                <>
-                 <div className="px-6 py-4 border-b border-[#E8EEF5] bg-white">
+                 <div className="px-6 py-3 border-b border-[#E8EEF5] bg-white flex-shrink-0">
                    <h2 className="text-base font-bold text-[#1F3A5F] flex items-center gap-2">
                      <BookOpen size={18} className="text-[#4A6FA5]" /> Appointment Details
                    </h2>
                  </div>
                  
-                 <div className="flex-1 overflow-y-auto px-6 py-5 scrollbar-thin">
-                   <form id="booking-form" onSubmit={handleSubmit} className="space-y-5">
+                 <div className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin">
+                   <form id="booking-form" onSubmit={handleSubmit} className="space-y-4">
                        
                        {!selectedSlot && (
-                           <div className="p-4 border border-dashed border-[#A8BCD6] bg-[#F4F7FB] rounded-lg text-center">
+                           <div className="p-3 border border-dashed border-[#A8BCD6] bg-[#F4F7FB] rounded-lg text-center">
                                <p className="text-sm text-[#4A6FA5] font-medium">Please select a time slot from the left pane.</p>
                            </div>
                        )}
 
                        {selectedSlot && (
-                         <div className="bg-white border border-[#DCE3ED] rounded-lg p-4 flex gap-4 shadow-sm">
+                         <div className="bg-white border border-[#DCE3ED] rounded-lg p-3 flex gap-4 shadow-sm">
                              <div className="flex-1">
-                                 <label className="block text-xs font-bold text-[#5A6C7D] mb-1.5 uppercase tracking-wider">
+                                 <label className="block text-xs font-bold text-[#5A6C7D] mb-1 uppercase tracking-wider">
                                      Start Time
                                  </label>
                                  <div className="relative">
@@ -240,12 +240,12 @@ export default function BookAppointmentPage() {
                                         min={`${String(new Date(selectedSlot.start).getHours()).padStart(2, '0')}:${String(new Date(selectedSlot.start).getMinutes()).padStart(2, '0')}`}
                                         max={`${String(new Date(selectedSlot.end).getHours()).padStart(2, '0')}:${String(new Date(selectedSlot.end).getMinutes()).padStart(2, '0')}`}
                                         onChange={(e) => setStartTime(e.target.value)}
-                                        className="w-full rounded-md border border-[#DCE3ED] bg-[#FBFCFE] py-2 pl-9 pr-3 text-sm text-[#1F3A5F] font-bold outline-none focus:border-[#1F3A5F] focus:ring-1 focus:ring-[#1F3A5F] transition"
+                                        className="w-full rounded-md border border-[#DCE3ED] bg-[#FBFCFE] py-1.5 pl-9 pr-3 text-sm text-[#1F3A5F] font-bold outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] transition"
                                     />
                                  </div>
                              </div>
-                             <div className="w-1/3">
-                                 <label className="block text-xs font-bold text-[#5A6C7D] mb-1.5 uppercase tracking-wider">
+                             <div className="w-[35%]">
+                                 <label className="block text-xs font-bold text-[#5A6C7D] mb-1 uppercase tracking-wider">
                                      Duration (Mins)
                                  </label>
                                  <input 
@@ -255,7 +255,7 @@ export default function BookAppointmentPage() {
                                      min={10}
                                      max={(new Date(selectedSlot.end) - new Date(selectedSlot.start)) / 60000}
                                      onChange={(e) => setDuration(Math.max(10, Math.min(e.target.value, (new Date(selectedSlot.end) - new Date(selectedSlot.start)) / 60000)))}
-                                     className="w-full rounded-md border border-[#DCE3ED] bg-[#FBFCFE] py-2 px-3 text-sm text-[#1F3A5F] font-bold outline-none focus:border-[#1F3A5F] focus:ring-1 focus:ring-[#1F3A5F] transition"
+                                     className="w-full rounded-md border border-[#DCE3ED] bg-[#FBFCFE] py-1.5 px-3 text-sm text-[#1F3A5F] font-bold outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] transition"
                                  />
                              </div>
                          </div>
@@ -272,14 +272,14 @@ export default function BookAppointmentPage() {
                                value={purpose}
                                onChange={(e) => setPurpose(e.target.value)}
                                placeholder="e.g., Project clarification, Assignment doubt"
-                               className="w-full rounded-md border border-[#DCE3ED] bg-white px-3 py-2.5 text-sm text-[#1F3A5F] outline-none focus:border-[#1F3A5F] focus:ring-1 focus:ring-[#1F3A5F] transition shadow-sm disabled:opacity-50 disabled:bg-gray-50"
+                               className="w-full rounded-md border border-[#DCE3ED] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] transition shadow-sm disabled:opacity-50 disabled:bg-gray-50"
                            />
                        </div>
 
                        <div>
-                           <label className="block text-sm font-bold text-[#1F3A5F] mb-2">Meeting Nature</label>
+                           <label className="block text-sm font-bold text-[#1F3A5F] mb-1.5">Meeting Nature</label>
                            <div className="flex gap-3">
-                               <label className={`flex-1 flex items-center justify-center gap-2 p-2.5 border rounded-md font-semibold cursor-pointer transition ${isGroupMeeting ? 'bg-[#1F3A5F] text-white border-[#1F3A5F]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
+                               <label className={`flex-1 flex items-center justify-center gap-2 p-2 border rounded-md font-semibold cursor-pointer transition ${isGroupMeeting ? 'bg-[#4A6FA5] text-white border-[#4A6FA5]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
                                    <input 
                                        type="checkbox" 
                                        checked={isGroupMeeting} 
@@ -289,7 +289,7 @@ export default function BookAppointmentPage() {
                                    />
                                    Group Meet
                                </label>
-                               <label className={`flex-1 flex items-center justify-center gap-2 p-2.5 border rounded-md font-semibold cursor-pointer transition ${isRecurringMeeting ? 'bg-[#1F3A5F] text-white border-[#1F3A5F]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
+                               <label className={`flex-1 flex items-center justify-center gap-2 p-2 border rounded-md font-semibold cursor-pointer transition ${isRecurringMeeting ? 'bg-[#4A6FA5] text-white border-[#4A6FA5]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
                                    <input 
                                        type="checkbox" 
                                        checked={isRecurringMeeting} 
@@ -311,7 +311,7 @@ export default function BookAppointmentPage() {
                                disabled={!selectedSlot}
                                onChange={(e) => setNote(e.target.value)}
                                placeholder="Optional details or context for the faculty..."
-                               className="w-full h-24 text-sm rounded-md border border-[#DCE3ED] bg-white px-3 py-2 text-[#1F3A5F] outline-none focus:border-[#1F3A5F] focus:ring-1 focus:ring-[#1F3A5F] resize-none shadow-sm transition disabled:opacity-50 disabled:bg-gray-50"
+                               className="w-full h-[68px] text-sm rounded-md border border-[#DCE3ED] bg-white px-3 py-2 text-[#1F3A5F] outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] resize-none shadow-sm transition disabled:opacity-50 disabled:bg-gray-50"
                            />
                        </div>
 
@@ -319,12 +319,12 @@ export default function BookAppointmentPage() {
                  </div>
                  
                  {/* Fixed Bottom Action Bar */}
-                 <div className="px-6 py-4 border-t border-[#E8EEF5] bg-white">
+                 <div className="px-6 py-3 border-t border-[#E8EEF5] bg-white flex-shrink-0">
                      <button
                          type="submit"
                          form="booking-form"
                          disabled={submitting || !selectedSlot}
-                         className="w-full py-3 rounded-md bg-[#1F3A5F] text-white font-bold text-sm shadow hover:bg-[#2B4E7A] transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                         className="w-full py-2.5 rounded-md bg-[#1F3A5F] text-white font-bold text-sm shadow hover:bg-[#2B4E7A] transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                      >
                          {submitting ? (
                            <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</>
