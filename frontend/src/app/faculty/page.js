@@ -9,10 +9,8 @@ import {
     Settings,
 } from "lucide-react";
 import api from "../../axios";
-import { useEffect, useState } from "react";
-
-
-const facultyAppointments = [
+import { useEffect, useState, useCallback } from "react";
+import { Loader2 } from "lucide-react";const facultyAppointments = [
     {
         id: 101,
         studentName: "Ada Lovelace",
@@ -67,19 +65,23 @@ const quickActions = [
 
 export default function FacultyDashboard() {
     const [facultyAppointments, setFacultyAppointments] = useState([]);
-    useEffect(() => {
-        const fetchDetails = async () => {
-            try {
-                const response = await api.get('/appmt');
-                console.log(response);
-                setFacultyAppointments(response.data);
-            } catch (error) {
-                console.error('Error fetching faculty appointments:', error);
-            }
-        };
+    const [loading, setLoading] = useState(true);
 
-        fetchDetails();
+    const fetchDetails = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/appmt');
+            setFacultyAppointments(response.data);
+        } catch (error) {
+            console.error('Error fetching faculty appointments:', error);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchDetails();
+    }, [fetchDetails]);
 
 
     const pendingRequests = [...facultyAppointments]
@@ -90,13 +92,20 @@ export default function FacultyDashboard() {
     const handleStatusUpdate = async (id, status) => {
         try {
             await api.post(`/appmt/update/${id}`, { status });
-            setFacultyAppointments(prev => prev.filter(apt => apt.id !== id));
+            await fetchDetails(); // Re-fetch all data to ensure sync
         } catch (error) {
             console.error('Failed to update status:', error);
         }
     };
 
-
+    if (loading) {
+        return (
+            <div className="flex h-[calc(100vh-100px)] w-full flex-col items-center justify-center gap-3 text-[#5A6C7D]">
+                <Loader2 className="h-10 w-10 animate-spin text-[#1F3A5F]" />
+                <p className="text-sm font-medium">Loading Dashboard Data...</p>
+            </div>
+        );
+    }
     return (
         <div className="mx-auto w-full max-w-6xl px-4">
             {/* Quick Actions Grid */}
@@ -175,10 +184,10 @@ export default function FacultyDashboard() {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <button onClick={() => handleStatusUpdate(apt.id, 'APPROVED')} className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium transition cursor-pointer">
+                                                <button onClick={() => handleStatusUpdate(apt.id, 'APPROVED')} className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer shadow-sm">
                                                     Approve
                                                 </button>
-                                                <button onClick={() => handleStatusUpdate(apt.id, 'REJECTED')} className="bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-md text-sm font-medium transition cursor-pointer">
+                                                <button onClick={() => handleStatusUpdate(apt.id, 'REJECTED')} className="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer shadow-sm">
                                                     Reject
                                                 </button>
                                             </div>
