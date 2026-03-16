@@ -1,158 +1,133 @@
 "use client";
 
 import { useState } from "react";
+import {
+  pendingRequestsData,
+  scheduledRequestsData,
+  historyRequestsData,
+} from "./requestData";
 
-export default function ViewAppointmentPage() {
+export default function FacultyAppointmentsPage() {
   const [activeTab, setActiveTab] = useState("pending");
 
+  const [pendingAppointments, setPendingAppointments] =
+    useState(pendingRequestsData);
+
+  const [scheduledAppointments, setScheduledAppointments] =
+    useState(scheduledRequestsData);
+
+  const [historyAppointments] = useState(historyRequestsData);
+
+  const handleApprove = (appointment) => {
+    setPendingAppointments((prev) =>
+      prev.filter((appt) => appt.id !== appointment.id)
+    );
+
+    setScheduledAppointments((prev) => [...prev, appointment]);
+  };
+
+  const handleReject = (appointment) => {
+    setPendingAppointments((prev) =>
+      prev.filter((appt) => appt.id !== appointment.id)
+    );
+  };
+
+  const handleCancel = (appointment) => {
+    setScheduledAppointments((prev) =>
+      prev.filter((appt) => appt.id !== appointment.id)
+    );
+  };
+
   const handleReschedule = (appointment) => {
-  alert(
-    `Reschedule request sent to ${appointment.student}. Student will receive an email to choose a new slot.`
-  );
+    alert(
+      `Reschedule request sent to ${appointment.student}. Student will receive a notification to select a new slot.`
+    );
 
-  // remove appointment from scheduled list
-  setScheduledAppointments((prev) =>
-    prev.filter((appt) => appt.id !== appointment.id)
-  );
-};
-
-  const pendingAppointments = [
-    {
-      id: 1,
-      student: "Aarav Sharma",
-      topic: "Project Discussion",
-      date: "12 Feb 2026",
-      time: "10:30 AM",
-      mode: "Virtual",
-    },
-    {
-      id: 2,
-      student: "Nisha Patel",
-      topic: "Exam Clarification",
-      date: "13 Feb 2026",
-      time: "2:00 PM",
-      mode: "In-Person",
-    },
-  ];
-
-  const [scheduledAppointments, setScheduledAppointments] = useState([
-  {
-    id: 3,
-    student: "Rahul Mehta",
-    topic: "Internship Guidance",
-    date: "10 Feb 2026",
-    time: "11:00 AM",
-    mode: "Virtual",
-  },
-]);
-
-  const historyAppointments = [
-    {
-      id: 4,
-      student: "Priya Nair",
-      topic: "Research Guidance",
-      date: "5 Feb 2026",
-      time: "3:00 PM",
-      mode: "In-Person",
-    },
-    {
-      id: 5,
-      student: "Aditya Verma",
-      topic: "Thesis Discussion",
-      date: "3 Feb 2026",
-      time: "1:30 PM",
-      mode: "Virtual",
-    },
-  ];
+    setScheduledAppointments((prev) =>
+      prev.filter((appt) => appt.id !== appointment.id)
+    );
+  };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-[#F7F9FC] px-4 overflow-hidden">
-      
-      {/* Background blobs */}
-      <div className="absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-[#4A6FA5]/20 rounded-full blur-3xl" />
-      <div className="absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-[#2A4A75]/20 rounded-full blur-3xl" />
+    <main className="min-h-screen bg-[#F7F9FC] px-4">
+      <section className="mx-auto w-full max-w-5xl">
 
-      {/* Main Card */}
-      <div className="relative w-full max-w-[900px] bg-white border border-[#E0E0E0] rounded-2xl shadow-md p-8 md:p-12">
+        {/* Page Header */}
 
-        {/* Header */}
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 flex items-center justify-center bg-[#4A6FA5] text-white font-bold rounded-sm text-lg">
-            FS
-          </div>
-          <h1 className="text-4xl font-bold text-[#1F3A5F]">Faculty Scheduler</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#1F3A5F]">
+            Manage Appointments
+          </h1>
+
+          <p className="text-sm text-[#5A6C7D] mt-1">
+            Review pending requests and manage your upcoming meetings.
+          </p>
         </div>
-
-        <p className="text-lg text-[#2A4A75] mt-2 font-medium">
-          Faculty Dashboard
-        </p>
-
-        <p className="text-base text-[#2A4A75] mt-2">
-          Review pending requests and manage your scheduled appointments
-        </p>
 
         {/* Tabs */}
-        <div className="mt-8 flex border-b border-[#E0E0E0]">
 
-          <button
-            onClick={() => setActiveTab("pending")}
-            className={`px-6 py-3 text-lg font-medium transition ${
-              activeTab === "pending"
-                ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
-                : "text-[#4A6FA5] hover:text-[#1F3A5F]"
-            }`}
-          >
-            Pending Requests
-          </button>
+        <div className="flex border-b border-[#DCE3ED] mb-6">
 
-          <button
-            onClick={() => setActiveTab("scheduled")}
-            className={`ml-6 px-6 py-3 text-lg font-medium transition ${
-              activeTab === "scheduled"
-                ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
-                : "text-[#4A6FA5] hover:text-[#1F3A5F]"
-            }`}
-          >
-            Scheduled Appointments
-          </button>
+          <Tab
+            label="Pending"
+            value="pending"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
 
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`ml-6 px-6 py-3 text-lg font-medium transition ${
-              activeTab === "history"
-                ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
-                : "text-[#4A6FA5] hover:text-[#1F3A5F]"
-            }`}
-          >
-            History
-          </button>
+          <Tab
+            label="Scheduled"
+            value="scheduled"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
+
+          <Tab
+            label="History"
+            value="history"
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
 
         </div>
 
-        {/* Content */}
-        <div className="mt-8 space-y-6">
+        <section className="space-y-4">
+
+          {/* Pending */}
 
           {activeTab === "pending" &&
             (pendingAppointments.length ? (
               pendingAppointments.map((appt) => (
-                <AppointmentCard key={appt.id} data={appt} />
+                <AppointmentCard
+                  key={appt.id}
+                  data={appt}
+                  showApproveReject
+                  onApprove={() => handleApprove(appt)}
+                  onReject={() => handleReject(appt)}
+                />
               ))
             ) : (
               <EmptyState text="No pending appointment requests." />
             ))}
 
+          {/* Scheduled */}
+
           {activeTab === "scheduled" &&
             (scheduledAppointments.length ? (
               scheduledAppointments.map((appt) => (
                 <AppointmentCard
-                key={appt.id}
-                data={appt}
-                showReschedule={true}
-                onReschedule={() => handleReschedule(appt)} />
-            ))
+                  key={appt.id}
+                  data={appt}
+                  showReschedule
+                  onReschedule={() => handleReschedule(appt)}
+                  onCancel={() => handleCancel(appt)}
+                />
+              ))
             ) : (
               <EmptyState text="No scheduled appointments." />
             ))}
+
+          {/* History */}
 
           {activeTab === "history" &&
             (historyAppointments.length ? (
@@ -163,49 +138,110 @@ export default function ViewAppointmentPage() {
               <EmptyState text="No past appointments." />
             ))}
 
-        </div>
-      </div>
-    </div>
+        </section>
+      </section>
+    </main>
   );
 }
 
-function AppointmentCard({ data, showReschedule, onReschedule }) {
+function Tab({ label, value, activeTab, setActiveTab }) {
   return (
-    <div className="border border-[#E0E0E0] rounded-2xl p-6 bg-white hover:shadow-md transition">
-      <div className="flex justify-between items-start">
+    <button
+      onClick={() => setActiveTab(value)}
+      className={`px-4 py-2 text-sm font-medium transition ${
+        activeTab === value
+          ? "text-[#1F3A5F] border-b-2 border-[#1F3A5F]"
+          : "text-[#5A6C7D]"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function AppointmentCard({
+  data,
+  showApproveReject,
+  showReschedule,
+  onApprove,
+  onReject,
+  onReschedule,
+  onCancel,
+}) {
+  return (
+    <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm transition hover:shadow-md">
+
+      <div className="flex items-center justify-between">
+
         <div>
-          <h3 className="text-xl font-semibold text-[#1F3A5F]">
+          <h3 className="text-base font-semibold text-[#1F3A5F]">
             {data.student}
           </h3>
-          <p className="text-base text-[#4A6FA5] mt-1">{data.topic}</p>
+
+          <p className="text-sm text-[#4A6FA5]">{data.topic}</p>
+
+          <p className="text-xs text-[#5A6C7D] mt-1">
+            {data.date} • {data.time}
+          </p>
         </div>
 
-        <span className="text-sm px-4 py-1 rounded-full bg-[#4A6FA5]/10 text-[#2A4A75]">
+        <span className="text-xs px-2 py-1 rounded-full bg-[#4A6FA5]/10 text-[#2A4A75]">
           {data.mode}
         </span>
+
       </div>
 
-      <div className="mt-4 text-base text-[#2A4A75] flex justify-between">
-        <span>{data.date}</span>
-        <span>{data.time}</span>
-      </div>
+      {/* Pending Buttons */}
+
+      {showApproveReject && (
+        <div className="mt-4 flex gap-2">
+
+          <button
+            onClick={onApprove}
+            className="px-3 py-1.5 text-xs bg-green-600 text-white rounded-md"
+          >
+            Approve
+          </button>
+
+          <button
+            onClick={onReject}
+            className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-md"
+          >
+            Reject
+          </button>
+
+        </div>
+      )}
+
+      {/* Scheduled Buttons */}
+
       {showReschedule && (
-  <div className="mt-4">
-    <button
-      onClick={onReschedule}
-      className="px-4 py-2 text-sm bg-[#1F3A5F] text-white rounded-lg hover:bg-[#2A4A75]"
-    >
-      Request Reschedule
-    </button>
-  </div>
-)}
-    </div>
+        <div className="mt-4 flex gap-2">
+
+          <button
+            onClick={onReschedule}
+            className="px-3 py-1.5 text-xs bg-[#1F3A5F] text-white rounded-md"
+          >
+            Reschedule
+          </button>
+
+          <button
+            onClick={onCancel}
+            className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-md"
+          >
+            Cancel
+          </button>
+
+        </div>
+      )}
+
+    </article>
   );
 }
 
 function EmptyState({ text }) {
   return (
-    <div className="text-center text-base text-[#4A6FA5] py-12">
+    <div className="rounded-lg border border-[#DCE3ED] bg-white p-6 text-center text-sm text-[#5A6C7D] shadow-sm">
       {text}
     </div>
   );
