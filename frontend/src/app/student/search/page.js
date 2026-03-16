@@ -69,19 +69,11 @@ export default function SearchFaculty() {
 }
 
 function FacultyCard({ id, name, designation, status, courses, location, statusColor }) {
-  const colorMap = {
-    green: "bg-green-100 text-green-700",
-    yellow: "bg-yellow-100 text-yellow-700",
-    red: "bg-red-100 text-red-700",
-  };
 
   return (
     <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[#1F3A5F]">{name}</h3>
-        <span className={`text-xs px-2 py-1 rounded-full ${colorMap[statusColor] ?? colorMap.green}`}>
-          {status}
-        </span>
       </div>
 
       <p className="mb-1 text-sm text-[#2A4A75]">{designation}</p>

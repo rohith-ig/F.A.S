@@ -11,7 +11,7 @@ export default function StudentHistoryPage() {
             faculty: "Dr. Alan Turing",
             date: "Oct 24, 2026",
             time: "10:30 AM",
-            status: "Action pending",
+            status: "Pending",
             rescheduleRequested: true,
             type: "Project Review",
             dept: "Computer Science",

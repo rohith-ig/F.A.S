@@ -18,7 +18,7 @@ const HandleAuth = () => {
                 if (role === 'ADMIN') {
                     router.push('/admin/');
                 } else if (role === 'STUDENT') {
-                    router.push('/user/');
+                    router.push('/student/');
                 } else if (role === 'FACULTY') {
                     router.replace('/faculty/');
                 } else {

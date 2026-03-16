@@ -1,35 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
+import { useEffect } from "react";
+
 
 import { Plus, Pencil, Trash2, User, Search } from "lucide-react";
 
 export default function ManageAccountsPage() {
+
+
   const [tab, setTab] = useState("Student");
   const [search, setSearch] = useState("");
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Janhvi Halder",
-      email: "janhvi@student.edu",
-      role: "Student",
-      roll: "CS21012",
-    },
-    {
-      id: 2,
-      name: "Rahul Sharma",
-      email: "rahul@student.edu",
-      role: "Student",
-      roll: "CS21015",
-    },
-    {
-      id: 3,
-      name: "Dr. Mehta",
-      email: "mehta@faculty.edu",
-      role: "Faculty",
-    },
-  ]);
+    const [users, setUsers] = useState([]);
+    useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    const res = await fetch("http://localhost:6969/users");
+    const data = await res.json();
+    setUsers(data);
+  };
 
     const [newUser, setNewUser] = useState({
     name: "",
@@ -53,35 +45,40 @@ export default function ManageAccountsPage() {
       u.name.toLowerCase().includes(search.toLowerCase())
     );
 
-    const handleAddUser = () => {
-    if (!newUser.name || !newUser.email) return;
+    // -----------------------------------------------------------------------
+const handleAddUser = async () => {
+  if (!newUser.name || !newUser.email) return;
 
-    setUsers([
-        ...users,
-        {
-        id: Date.now(),
-        ...newUser,
-        role: tab,
-        },
-    ]);
+  const res = await fetch("http://localhost:6969/users/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...newUser,
+      role: tab,
+    })
+  });
 
-    setNewUser({
-        name: "",
-        email: "",
-        role: tab,
-        roll: "",
-        program: "",
-        dept: "",
-        location: "",
-        subjects: "",
-    });
-    };
+  const data = await res.json();
+
+  if (data.success) {
+    setUsers([...users, { id: data.user.id, ...newUser, role: tab }]);
+  }
+};
+//  ----------------------------------------------------------------------------
 
 
-  const handleDelete = (id) => {
-    setUsers(users.filter((u) => u.id !== id));
-  };
+const handleDelete = async (id) => {
 
+  await fetch(`http://localhost:6969/users/${id}`, {
+    method: "DELETE",
+  });
+
+  setUsers(users.filter((u) => u.id !== id));
+};
+
+//-----------------------------------------------------------------------
   const handleEdit = (id) => {
     setEditingId(id);
   };
