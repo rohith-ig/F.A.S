@@ -100,43 +100,47 @@ export default function BookAppointmentPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-6 h-[calc(100vh-64px)] overflow-hidden flex flex-col">
-      <div className="mb-4">
-          <Link href="/student/search" className="inline-flex items-center gap-2 text-sm font-semibold text-[#4A6FA5] hover:text-[#1F3A5F] transition">
-              <ArrowLeft size={16} /> Back to Search
+    <div className="relative mx-auto w-full max-w-4xl px-4 py-4 h-[calc(100vh-64px)] overflow-hidden flex flex-col">
+      {/* Aesthetic Background Splashes */}
+      <div className="absolute top-1/3 left-1/4 -translate-x-1/2 w-64 h-64 bg-purple-100/40 rounded-full blur-3xl -z-10 animate-pulse" />
+      <div className="absolute bottom-1/3 right-1/4 w-52 h-52 bg-[#1F3A5F]/5 rounded-full blur-2xl -z-10" />
+
+      <div className="mb-3">
+          <Link href="/student/search" className="inline-flex items-center gap-1 text-xs font-bold text-[#4A6FA5] hover:text-[#1F3A5F] transition">
+              <ArrowLeft size={14} /> Back to Search
           </Link>
       </div>
 
       {success ? (
          <div className="flex-1 flex items-center justify-center">
-             <div className="bg-white border border-emerald-200 rounded-2xl p-8 text-center shadow-md animate-fade-in max-w-md">
-                 <CheckCircle2 className="mx-auto h-16 w-16 text-emerald-500 mb-4" />
-                 <h2 className="text-2xl font-bold text-[#1F3A5F] mb-2">Booking Request Sent!</h2>
-                 <p className="text-[#5A6C7D] mb-4">Your request has been submitted successfully and is awaiting approval.</p>
-                 <p className="text-xs text-gray-400">Redirecting to Dashboard...</p>
+             <div className="bg-white border border-emerald-100 rounded-2xl p-6 text-center shadow-md animate-fade-in max-w-sm backdrop-blur-md bg-white/80">
+                 <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-500 mb-3" />
+                 <h2 className="text-xl font-bold text-[#1F3A5F] mb-1">Booking Request Sent!</h2>
+                 <p className="text-sm text-[#5A6C7D] mb-3">Your request has been submitted and is awaiting approval.</p>
+                 <p className="text-[10px] text-gray-400">Redirecting to Dashboard...</p>
              </div>
          </div>
       ) : (
-         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+         <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-5 overflow-hidden">
              
              {/* Left Panel - Faculty & Slots */}
-             <div className="lg:col-span-7 flex flex-col overflow-hidden bg-white border border-[#DCE3ED] rounded-2xl shadow-sm p-5">
-                 <header className="mb-4 flex items-start gap-4 border-b border-[#E8EEF5] pb-4">
-                     <div className="h-12 w-12 rounded-xl bg-[#F0F5FA] flex items-center justify-center text-[#1F3A5F] border border-[#DCE3ED] shadow-sm">
-                         <User size={24} />
+             <div className="md:col-span-7 flex flex-col overflow-hidden bg-white/90 backdrop-blur-md border border-[#DCE3ED] rounded-xl shadow-sm p-4">
+                 <header className="mb-3 flex items-start gap-3 border-b border-[#E8EEF5] pb-3">
+                     <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#1F3A5F] to-[#2A4A75] flex items-center justify-center text-white shadow-sm flex-shrink-0">
+                         <User size={20} />
                      </div>
-                     <div>
-                         <p className="text-xs font-bold text-[#4A6FA5] tracking-wider uppercase">{faculty?.designation || 'Faculty'}</p>
-                         <h1 className="text-xl font-bold text-[#1F3A5F] mt-0.5">{faculty?.user?.name}</h1>
-                         <p className="text-sm text-[#5A6C7D]">{faculty?.department}</p>
+                     <div className="min-w-0">
+                         <p className="text-[10px] font-bold text-[#4A6FA5] tracking-wider uppercase truncate">{faculty?.designation || 'Faculty'}</p>
+                         <h1 className="text-lg font-bold text-[#1F3A5F] mt-0.5 truncate">{faculty?.user?.name}</h1>
+                         <p className="text-xs text-[#5A6C7D] truncate">{faculty?.department}</p>
                      </div>
                  </header>
 
                  <div className="flex-1 overflow-hidden flex flex-col">
-                     <label className="block text-sm font-bold text-[#1F3A5F] mb-3 flex items-center gap-2">
-                         <Calendar size={16} className="text-[#4A6FA5]" /> Select a time slot
+                     <label className="block text-xs font-bold text-[#1F3A5F] mb-2 flex items-center gap-1.5">
+                         <Calendar size={14} className="text-[#4A6FA5]" /> Select a time slot
                      </label>
-                     <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5 content-start">
+                     <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 gap-2 content-start">
                           {availabilities.map((slot, index) => {
                               const start = new Date(slot.start);
                               const end = new Date(slot.end);
@@ -147,23 +151,23 @@ export default function BookAppointmentPage() {
                                       type="button"
                                       key={index}
                                       onClick={() => handleSlotSelect(slot)}
-                                      className={`p-3 border rounded-xl text-left transition-all duration-150 flex flex-col justify-between h-24 ${
+                                      className={`p-2.5 border rounded-xl text-left transition-all duration-150 flex flex-col justify-between h-20 ${
                                           isSelected 
-                                          ? 'border-[#1F3A5F] bg-[#1F3A5F]/5 ring-2 ring-[#1F3A5F] shadow-sm' 
-                                          : 'border-[#DCE3ED] bg-[#FBFCFE] hover:border-[#1F3A5F]/40 hover:bg-white'
+                                          ? 'border-[#1F3A5F] bg-[#1F3A5F]/5 ring-2 ring-[#1F3A5F] shadow-sm scale-[1.01]' 
+                                          : 'border-[#DCE3ED] bg-[#FBFCFE]/80 hover:border-[#1F3A5F]/40 hover:bg-white'
                                       }`}
                                   >
                                       <div>
-                                          <p className="text-[14px] font-bold text-[#1F3A5F]">
+                                          <p className="text-xs font-bold text-[#1F3A5F]">
                                               {start.toLocaleDateString('en-US', { month: 'short', day: 'numeric',   year: 'numeric'  })}
                                           </p>
-                                          <p className="text-xs font-semibold text-[#4A6FA5] mt-1 flex items-center gap-1">
-                                              <Clock size={12} /> {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                          <p className="text-[11px] font-semibold text-[#4A6FA5] mt-0.5 flex items-center gap-1">
+                                              <Clock size={11} /> {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                           </p>
                                       </div>
                                       <div className="text-right w-full">
-                                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-[#1F3A5F] text-white' : 'bg-gray-100 text-[#5A6C7D]'}`}>
-                                              {(end - start) / 60000} min max
+                                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-[#1F3A5F] text-white' : 'bg-gray-100 text-[#5A6C7D]'}`}>
+                                              {(end - start) / 60000}m max
                                           </span>
                                       </div>
                                   </button>
@@ -174,10 +178,10 @@ export default function BookAppointmentPage() {
              </div>
 
              {/* Right Panel - Form Details */}
-             <div className="lg:col-span-5 flex flex-col overflow-hidden bg-white border border-[#DCE3ED] rounded-2xl shadow-sm p-5">
-                 <div className="border-b border-[#E8EEF5] pb-3 mb-4 flex items-center gap-2">
-                     <BookOpen size={20} className="text-[#1F3A5F]" />
-                     <h2 className="text-lg font-bold text-[#1F3A5F]">Request Details</h2>
+             <div className="md:col-span-5 flex flex-col overflow-hidden bg-white/90 backdrop-blur-md border border-[#DCE3ED] rounded-xl shadow-sm p-4">
+                 <div className="border-b border-[#E8EEF5] pb-2 mb-3 flex items-center gap-1.5">
+                     <BookOpen size={18} className="text-[#1F3A5F]" />
+                     <h2 className="text-sm font-bold text-[#1F3A5F]">Request Details</h2>
                  </div>
 
                  <form onSubmit={handleSubmit} className="flex-1 flex flex-col justify-between overflow-y-auto space-y-4 pr-1">
