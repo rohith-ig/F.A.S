@@ -9,19 +9,39 @@ import { Plus, Pencil, Trash2, User, Search } from "lucide-react";
 export default function ManageAccountsPage() {
 
 
-  const [tab, setTab] = useState("Student");
+  const [tab, setTab] = useState("STUDENT");
   const [search, setSearch] = useState("");
 
-    const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
     useEffect(() => {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
-    const res = await fetch("http://localhost:6969/api/users");
-    const data = await res.json();
-    setUsers(data);
-  };
+const fetchUsers = async () => { 
+  try {
+    // Replace this string with the actual token you printed from test.js
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3MzY3NTkxNSwiZXhwIjo0OTI5NDM1OTE1fQ.Du9Oj4U7oSaAiA-Ycz4QclpIGZW2dMiidHOHe-c6M6E"; 
+
+    const res = await fetch("http://localhost:6969/api/users", {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    }); 
+    
+    const data = await res.json(); 
+    
+    // Safety check to prevent the "users.filter is not a function" error
+    if (Array.isArray(data)) {
+      setUsers(data); 
+    } else {
+      console.error("Error fetching users:", data);
+      setUsers([]); 
+    }
+  } catch (error) {
+    console.error("Fetch error:", error);
+    setUsers([]);
+  }
+};
 
     const [newUser, setNewUser] = useState({
     name: "",
@@ -116,7 +136,7 @@ const handleDelete = async (id) => {
           <div className="flex bg-white border border-[#E0E0E0] rounded-md p-[3px] w-fit shadow-sm">
 
             <button
-              onClick={() => setTab("Student")}
+              onClick={() => setTab("STUDENT")}
               className={`px-4 py-1.5 text-sm rounded-md transition ${
                 tab === "Student"
                   ? "bg-[#1F3A5F] text-white"
@@ -127,7 +147,7 @@ const handleDelete = async (id) => {
             </button>
 
             <button
-              onClick={() => setTab("Faculty")}
+              onClick={() => setTab("FACULTY")}
               className={`px-4 py-1.5 text-sm rounded-md transition ${
                 tab === "Faculty"
                   ? "bg-[#1F3A5F] text-white"
@@ -161,16 +181,16 @@ const handleDelete = async (id) => {
         </div>
 
 
-        {/* Add Faculty */}
+     
     {/* Add User */}
     <div className="bg-white border border-[#E0E0E0] rounded-lg p-6 mb-8 shadow-sm transition hover:shadow-md">
 
-    <h2 className="text-base font-semibold text-[#1F3A5F] mb-4">
+    {/* <h2 className="text-base font-semibold text-[#1F3A5F] mb-4">
         Add {tab}
-    </h2>
+    </h2> */}
 
     {/* STUDENT FORM */}
-    {tab === "Student" && (
+    {tab === "STUDENT" && (
         <div className="grid md:grid-cols-5 gap-3">
 
         <input
@@ -219,7 +239,7 @@ const handleDelete = async (id) => {
     )}
 
     {/* FACULTY FORM */}
-    {tab === "Faculty" && (
+    {tab === "FACULTY" && (
         <div className="grid md:grid-cols-2 gap-3">
 
         <input
