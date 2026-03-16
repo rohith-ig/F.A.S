@@ -62,14 +62,14 @@ const getAppointments = async (req, res) => {
         if (req.user.role === 'STUDENT') {
             appointments = await prisma.appointmentRequest.findMany({
                 where: { studentId: req.user.studentProfile.id },
-                include: {
+                select : {
                     faculty: {
                         select : {
                             id: true,
                             department: true,
                             designation: true
                         },
-                        include : {
+                        select : {
                             user : {
                                 select : {
                                     name: true,

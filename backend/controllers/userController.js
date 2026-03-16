@@ -14,6 +14,26 @@ const getUserInfo = async (req, res) => {
     }
 };
 
+const getFaculties = async (req, res) => {
+    try {
+        const faculties = await prisma.facultyProfile.findMany({
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                }
+            }
+        });
+        res.json(faculties);
+    } catch (error) {
+        console.error('Error fetching faculty profiles:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     getUserInfo,
+    getFaculties
 };

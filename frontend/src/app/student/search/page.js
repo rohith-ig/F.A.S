@@ -1,19 +1,45 @@
 "use client"
 import Link from "next/link";
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Search, Loader2 } from "lucide-react";
 import BackArrowButton from "@/components/BackArrowButton";
-import { facultyProfiles } from "./facultyData";
+import api from "../../../axios";
 
 export default function SearchFaculty() {
   const [searchMode, setSearchMode] = useState("name");
   const [searchText, setSearchText] = useState("");
+  const [faculties, setFaculties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredFaculty = facultyProfiles.filter((f) => {
-    const value = searchMode === "name" ? f.name : f.designation;
+  const fetchFaculties = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/user/faculties');
+      setFaculties(response.data);
+    } catch (error) {
+      console.error("Failed to fetch faculties:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    return value.toLowerCase().includes(searchText.toLowerCase());
+  useEffect(() => {
+    fetchFaculties();
+  }, [fetchFaculties]);
+
+  const filteredFaculty = faculties.filter((f) => {
+    const value = searchMode === "name" ? f.user?.name : f.designation;
+    return value?.toLowerCase().includes(searchText.toLowerCase());
   });
+
+  if (loading) {
+    return (
+      <div className="flex h-[calc(100vh-100px)] w-full flex-col items-center justify-center gap-3 text-[#5A6C7D]">
+          <Loader2 className="h-10 w-10 animate-spin text-[#1F3A5F]" />
+          <p className="text-sm font-medium">Loading Faculties...</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#F7F9FC] px-4 ">
@@ -68,37 +94,23 @@ export default function SearchFaculty() {
   );
 }
 
-function FacultyCard({ id, name, designation, status, courses, location, statusColor }) {
-  const colorMap = {
-    green: "bg-green-100 text-green-700",
-    yellow: "bg-yellow-100 text-yellow-700",
-    red: "bg-red-100 text-red-700",
-  };
-
+function FacultyCard({ id, user, designation, department }) {
   return (
-    <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm transition hover:shadow-md">
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[#1F3A5F]">{name}</h3>
-        <span className={`text-xs px-2 py-1 rounded-full ${colorMap[statusColor] ?? colorMap.green}`}>
-          {status}
-        </span>
+    <article className="rounded-lg border border-[#DCE3ED] bg-white p-5 shadow-sm transition hover:shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div className="mb-1 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-[#1F3A5F]">{user?.name}</h3>
+        </div>
+        <p className="mb-1 text-sm text-[#2A4A75] font-medium">{designation}</p>
+        <p className="text-xs text-[#5A6C7D]">
+          <span className="font-medium text-[#1F3A5F]">Department:</span>{" "}
+          {department}
+        </p>
       </div>
-
-      <p className="mb-1 text-sm text-[#2A4A75]">{designation}</p>
-
-      <p className="mb-1 text-xs text-[#5A6C7D]">
-        <span className="font-medium text-[#1F3A5F]">Courses:</span>{" "}
-        {courses}
-      </p>
-
-      <p className="text-xs text-[#5A6C7D]">
-        <span className="font-medium text-[#1F3A5F]">Location:</span>{" "}
-        {location}
-      </p>
 
       <Link
         href={`/student/req/${id}`}
-        className="mt-4 inline-flex rounded-md bg-[#1F3A5F] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#2A4A75]"
+        className="inline-flex items-center justify-center rounded-md bg-[#1F3A5F] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2A4A75] shadow-sm self-start md:self-center"
       >
         Request Appointment
       </Link>
