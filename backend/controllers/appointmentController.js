@@ -114,7 +114,7 @@ const getAppointments = async (req, res) => {
 const updateAppointmentStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, cancel } = req.body;
         if (req.user.role !== 'FACULTY') {
             return res.status(403).json({ error: 'Only faculty members can update appointment status' });
         }
@@ -136,7 +136,7 @@ const updateAppointmentStatus = async (req, res) => {
             }
             const update = await prisma.appointmentRequest.update({
                 where : {id : Number(id)},
-                data: {status : status}
+                data: {status : status, cancellationNote: cancel}
             });
             return res.json({success:update})
         }
@@ -158,7 +158,8 @@ const updateAppointmentStatus = async (req, res) => {
                         }
                     },
                     data : {
-                        status : "REJECTED"
+                        status : "REJECTED",
+                        cancellationNote : "This appointment was automatically rejected because the time slot was taken by another approved appointment."
                     }
                 });
                 return res.json(updateMain);
