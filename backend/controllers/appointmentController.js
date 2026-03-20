@@ -74,7 +74,7 @@ const getAppointments = async (req, res) => {
                         }
                     }
                 },
-                orderBy: { start: 'desc' },
+                orderBy: { start: 'asc' },
             });     
         }
         else if (req.user.role === 'FACULTY') {

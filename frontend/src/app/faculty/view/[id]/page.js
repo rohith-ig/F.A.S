@@ -38,7 +38,7 @@ export default function FacultyAppointmentDetail() {
     setUpdating(true);
     try {
       const payload = { status };
-      if (status === 'CANCELLED' && cancelNote.trim() !== '') {
+      if ((status === 'CANCELLED' || status === 'REJECTED') && cancelNote.trim() !== '') {
           payload.cancel = cancelNote;
       }
       await api.post(`/appmt/update/${id}`, payload);
@@ -157,21 +157,34 @@ export default function FacultyAppointmentDetail() {
 
         <div className="bg-[#F4F7FB] p-4 border-t border-[#E8EEF5] flex-shrink-0">
              {appointment.status === 'PENDING' && (
-                  <div className="flex flex-col sm:flex-row items-center gap-3">
-                      <button 
-                         onClick={() => handleStatusUpdate('REJECTED')}
-                         disabled={updating}
-                         className="w-full sm:w-1/3 flex items-center justify-center gap-1.5 bg-white border border-rose-500 text-rose-600 hover:bg-rose-50 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50"
-                      >
-                         <X size={16} /> Decline
-                      </button>
-                      <button 
-                        onClick={() => handleStatusUpdate('APPROVED')}
-                        disabled={updating}
-                        className="w-full sm:w-2/3 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 shadow-sm"
-                      >
-                         <Check size={16} /> Approve Request
-                      </button>
+                  <div className="flex flex-col gap-3">
+                       <div className="flex flex-col gap-1.5">
+                           <label className="text-xs font-bold text-[#1F3A5F] flex items-center gap-1.5">
+                               Response Note <span className="text-[10px] text-[#5A6C7D] font-normal">(Optional for Decline)</span>
+                           </label>
+                           <textarea 
+                               placeholder="Add a note (e.g. why you are declining)..."
+                               value={cancelNote}
+                               onChange={(e) => setCancelNote(e.target.value)}
+                               className="w-full text-xs rounded-lg border border-[#DCE3ED] p-2.5 text-[#1F3A5F] outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] shadow-sm transition resize-none h-[50px]"
+                           />
+                       </div>
+                       <div className="flex flex-col sm:flex-row items-center gap-3">
+                          <button 
+                             onClick={() => handleStatusUpdate('REJECTED')}
+                             disabled={updating}
+                             className="w-full sm:w-1/3 flex items-center justify-center gap-1.5 bg-white border border-rose-500 text-rose-600 hover:bg-rose-50 py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50"
+                          >
+                             <X size={16} /> Decline
+                          </button>
+                          <button 
+                            onClick={() => handleStatusUpdate('APPROVED')}
+                            disabled={updating}
+                            className="w-full sm:w-2/3 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg text-sm font-bold transition disabled:opacity-50 shadow-sm"
+                          >
+                             <Check size={16} /> Approve Request
+                          </button>
+                      </div>
                   </div>
              )}
 

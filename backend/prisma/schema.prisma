@@ -15,7 +15,6 @@ model User {
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   profilePic     String          
-  cancellationNote String?
   facultyProfile FacultyProfile?
   studentProfile StudentProfile?
 }
@@ -48,6 +47,7 @@ model AppointmentRequest {
   end        DateTime
   purpose   String
   note      String?
+  cancellationNote   String?
   status      Status   @default(PENDING)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
