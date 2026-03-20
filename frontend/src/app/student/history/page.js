@@ -224,6 +224,13 @@ export default function StudentHistoryPage() {
                                         <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
                                             <Clock size={14} /> {apt.time} • {apt.type}
                                         </p>
+                                        
+                                        {(apt.status === "Cancelled" || apt.status === "Rejected") && apt.cancellationNote && (
+                                            <div className="mt-2.5 bg-rose-50 border border-rose-100 rounded-md p-2.5 max-w-sm">
+                                                <p className="text-xs font-bold text-rose-800 mb-0.5">Cancellation Note:</p>
+                                                <p className="text-xs text-rose-700 leading-snug">{apt.cancellationNote}</p>
+                                            </div>
+                                        )}
 
                                     </div>
 
