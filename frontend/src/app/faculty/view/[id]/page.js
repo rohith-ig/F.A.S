@@ -113,10 +113,16 @@ export default function FacultyAppointmentDetail() {
                     <div className="space-y-3">
                         {appointment.students?.map((participant) => {
                            const studentInfo = participant.student;
+                           const isCreator = studentInfo.id === appointment.studentId;
                            return (
                                <div key={studentInfo.id} className="bg-[#F8FAFC] p-4 rounded-lg border border-[#DCE3ED] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                    <div>
-                                       <p className="text-base font-bold text-[#1F3A5F]">{studentInfo.user?.name}</p>
+                                       <p className="text-base font-bold text-[#1F3A5F] flex items-center">
+                                          {studentInfo.user?.name}
+                                          {isCreator && (
+                                              <span className="ml-2 text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Organizer</span>
+                                          )}
+                                       </p>
                                        <p className="text-[#5A6C7D] text-sm mt-0.5">{studentInfo.user?.email}</p>
                                    </div>
                                    <div className="flex flex-col sm:items-end gap-1 text-sm">

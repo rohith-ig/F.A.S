@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import api from "../../../axios";
-import { Loader2, CalendarClock, Clock, Eye, Filter } from "lucide-react";
+import { Loader2, CalendarClock, Clock, Eye, Filter, User } from "lucide-react";
 import Link from "next/link";
 
 export default function FacultyAppointmentList() {
@@ -162,12 +162,20 @@ function AppointmentRow({ data, type }) {
           </div>
            <div>
               <h4 className="font-semibold text-[#1F3A5F] text-lg flex items-center gap-2">
-                 {data.students?.[0]?.student?.user?.name || "Unknown Student"} 
+                 {(() => {
+                     const creator = data.students?.find(s => s.student?.id === data.studentId) || data.students?.[0];
+                     return creator?.student?.user?.name || "Unknown Student";
+                 })()}
+                 <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Organizer</span>
+                 
                  {data.students?.length > 1 && (
-                    <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">+ {data.students.length - 1} more</span>
+                    <span className="text-xs font-semibold bg-[#E8EEF5] text-[#4A6FA5] px-2 py-0.5 rounded-full">+ {data.students.length - 1} more</span>
                  )}
                  <span className="text-sm font-normal text-[#5A6C7D]">
-                    ({data.students?.[0]?.student?.rollNumber || "N/A"})
+                    ({(() => {
+                        const creator = data.students?.find(s => s.student?.id === data.studentId) || data.students?.[0];
+                        return creator?.student?.rollNumber || "N/A";
+                    })()})
                  </span>
                  {data.capacity > 1 && (
                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 rounded">

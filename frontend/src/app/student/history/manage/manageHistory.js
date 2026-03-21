@@ -24,6 +24,7 @@ export default function ManageRequests() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [capacity, setCapacity] = useState(1);
   const [students, setStudents] = useState([]);
+  const [creatorId, setCreatorId] = useState(null);
   
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
@@ -36,6 +37,7 @@ export default function ManageRequests() {
        if (found) {
            setCapacity(found.capacity || 1);
            setStudents(found.students || []);
+           setCreatorId(found.studentId);
        }
     } catch (error) {
        console.error("Failed to fetch group details:", error);
@@ -146,8 +148,13 @@ export default function ManageRequests() {
                   {students.map((s, idx) => (
                       <div key={s?.student?.id || idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white rounded-md border border-[#E8EEF5]">
                           <div>
-                              <p className="font-semibold text-sm text-[#1F3A5F]">{s?.student?.user?.name || "Unknown Student"}</p>
-                              <p className="text-xs text-[#5A6C7D]">{s?.student?.user?.email || "No Email"}</p>
+                              <p className="font-semibold text-sm text-[#1F3A5F] flex items-center gap-2">
+                                  {s?.student?.user?.name || "Unknown Student"}
+                                  {s?.student?.id === creatorId && (
+                                     <span className="text-[10px] bg-[#E8EEF5] text-[#4A6FA5] px-1.5 py-0.5 rounded uppercase font-bold tracking-wider border border-[#DCE3ED]">Organizer</span>
+                                  )}
+                              </p>
+                              <p className="text-xs text-[#5A6C7D] mt-0.5">{s?.student?.user?.email || "No Email"}</p>
                           </div>
                       </div>
                   ))}

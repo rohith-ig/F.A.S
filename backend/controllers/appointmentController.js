@@ -69,7 +69,18 @@ const getAppointments = async (req, res) => {
         let appointments;
         if (req.user.role === 'STUDENT') {
             appointments = await prisma.appointmentRequest.findMany({
-                where: { studentId: req.user.studentProfile.id },
+                where: 
+                { 
+                    OR : [
+                        { studentId: req.user.studentProfile.id },
+                        { students : {
+                                some : {
+                                    userId : req.user.studentProfile.id
+                                }
+                            } 
+                        }
+                    ]
+                },
                 include : {
                     faculty : {
                         include : {
@@ -232,10 +243,8 @@ const addGroupMember = async (req,res) => {
         }
         const existingMember = await prisma.appointmentUsers.findFirst({
             where : {
-                appointmentId_userId : {
-                    appointmentId : Number(appmtId),
-                    userId : user.studentProfile.id
-                }
+                appointmentId : Number(appmtId),
+                userId : user.studentProfile.id
             }
         });
         if(existingMember) {
