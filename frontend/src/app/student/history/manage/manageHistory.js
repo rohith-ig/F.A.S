@@ -1,7 +1,7 @@
 "use client";
 
-import { Calendar, User, Clock, Mail, BookOpen, MapPin, Users } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Calendar, User, Clock, Mail, BookOpen, MapPin, Users, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import api from "../../../../axios";
 
@@ -24,24 +24,50 @@ export default function ManageRequests() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [capacity, setCapacity] = useState(1);
   const [students, setStudents] = useState([]);
+  
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
 
-  useEffect(() => {
-    if (aptId) {
-      const fetchApt = async () => {
-        try {
-           const response = await api.get('/appmt');
-           const found = response.data.find(a => String(a.id) === String(aptId));
-           if (found) {
-               setCapacity(found.capacity || 1);
-               setStudents(found.students || []);
-           }
-        } catch (error) {
-           console.error("Failed to fetch group details:", error);
-        }
-      };
-      fetchApt();
+  const fetchApt = useCallback(async () => {
+    if (!aptId) return;
+    try {
+       const response = await api.get('/appmt');
+       const found = response.data.find(a => String(a.id) === String(aptId));
+       if (found) {
+           setCapacity(found.capacity || 1);
+           setStudents(found.students || []);
+       }
+    } catch (error) {
+       console.error("Failed to fetch group details:", error);
     }
   }, [aptId]);
+
+  useEffect(() => {
+    fetchApt();
+  }, [fetchApt]);
+
+  const handleInvite = async () => {
+      if (!inviteEmail.trim()) {
+          alert("Please enter a valid email to invite.");
+          return;
+      }
+      setInviting(true);
+      try {
+          // Based on backend implementation `/addMember` inside the Appointment router
+          await api.post('/appmt/addMember', {
+              appmtId: aptId,
+              email: inviteEmail
+          });
+          alert("Group member added successfully!");
+          setInviteEmail("");
+          fetchApt(); // Refresh the list seamlessly
+      } catch (error) {
+          const errMsg = error.response?.data?.error || "Failed to add member to the group.";
+          alert(errMsg);
+      } finally {
+          setInviting(false);
+      }
+  };
 
   return (
     <div className="min-h-screen bg-[#F7F9FC] font-inter relative overflow-hidden">
@@ -133,14 +159,18 @@ export default function ManageRequests() {
                        <div className="flex items-center gap-3">
                            <input 
                                type="email" 
+                               value={inviteEmail}
+                               onChange={(e) => setInviteEmail(e.target.value)}
+                               disabled={inviting}
                                placeholder="Student email address..." 
-                               className="flex-1 text-sm px-3 py-2 rounded-md border border-[#DCE3ED] outline-none focus:border-[#4A6FA5]"
+                               className="flex-1 text-sm px-3 py-2 rounded-md border border-[#DCE3ED] outline-none focus:border-[#4A6FA5] disabled:opacity-50"
                            />
                            <button 
-                               onClick={() => alert("Dummy API Triggered: Invitiation sent to email!")}
-                               className="bg-[#4A6FA5] hover:bg-[#3f5e8a] text-white text-sm px-4 py-2 rounded-md font-medium transition whitespace-nowrap"
+                               onClick={handleInvite}
+                               disabled={inviting || !inviteEmail.trim()}
+                               className="flex items-center gap-2 bg-[#4A6FA5] hover:bg-[#3f5e8a] text-white text-sm px-4 py-2 rounded-md font-medium transition whitespace-nowrap disabled:opacity-50"
                            >
-                               Send Invite
+                               {inviting ? <><Loader2 size={16} className="animate-spin" /> Inviting</> : "Send Invite"}
                            </button>
                        </div>
                    </div>

@@ -201,8 +201,63 @@ const updateAppointmentStatus = async (req, res) => {
     }
 }
 
+const addGroupMember = async (req,res) => {
+    try {
+        const { appmtId, email } = req.body;
+        const user = await prisma.user.findUnique({
+            where : {email : email},
+            include : {
+                studentProfile : true
+            }
+        });
+        if(!user || user.role !== 'STUDENT') {
+            return res.status(404).json({error : "User not found"});
+        }
+        const appmt = await prisma.appointmentRequest.findUnique({
+            where : {id : Number(appmtId)},
+            include : {
+                _count : {
+                    select : {
+                        students : true
+                    }
+                }
+            }
+        });
+        if(!appmt || appmt.studentId !== req.user.studentProfile.id) {
+            return res.status(404).json({error : "Appointment not found"});
+        }
+        const currentMembers = appmt._count.students;
+        if (currentMembers >= appmt.capacity) {
+            return res.status(400).json({error : "Appointment capacity reached"});
+        }
+        const existingMember = await prisma.appointmentUsers.findFirst({
+            where : {
+                appointmentId_userId : {
+                    appointmentId : Number(appmtId),
+                    userId : user.studentProfile.id
+                }
+            }
+        });
+        if(existingMember) {
+            return res.status(400).json({error : "User is already a member of this appointment"});
+        }
+        const addUserGroup = await prisma.appointmentUsers.create({
+            data: {
+                appointmentId: Number(appmtId),
+                userId: user.studentProfile.id
+            }
+        });
+        res.json({success : addUserGroup});
+    }   
+    catch (e) {
+        console.log(e);
+        res.status(500).json({"Error": "Internal Server Error"});
+    } 
+}
+
 module.exports = {
     postAppointmentRequest,
     getAppointments,
-    updateAppointmentStatus
+    updateAppointmentStatus,
+    addGroupMember
 };
