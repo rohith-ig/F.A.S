@@ -5,7 +5,7 @@ const postAppointmentRequest = async (req, res) => {
         if (req.user.role !== 'STUDENT') {
             return res.status(403).json({ error: 'Only students can create appointment requests' });
         }
-        const { facultyId, start, duration, purpose, note, capacity = 1 } = req.body;
+        const { facultyId, start, duration, purpose, note, capacity = 1, isGroup = false } = req.body;
 
         if (!facultyId || !start || !duration || !purpose) {
             return res.status(400).json({ error: 'Missing required fields' });
@@ -223,6 +223,9 @@ const addGroupMember = async (req,res) => {
         });
         if(!user || user.role !== 'STUDENT') {
             return res.status(404).json({error : "User not found"});
+        }
+        if (!appmt.isGroup) {
+            return res.status(400).json({error : "This appointment is not a group appointment"});
         }
         const appmt = await prisma.appointmentRequest.findUnique({
             where : {id : Number(appmtId)},

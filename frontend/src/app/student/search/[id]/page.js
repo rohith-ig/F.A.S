@@ -81,7 +81,8 @@ export default function BookAppointmentPage() {
             duration: parseInt(duration),
             purpose,
             note: fullNote || undefined,
-            capacity: parseInt(capacity)
+            capacity: parseInt(capacity),
+            isGroup: isGroupMeeting
         };
         await api.post('/appmt', payload);
         setSuccess(true);

@@ -154,7 +154,7 @@ export default function FacultyAppointmentDetail() {
                             </div>
                         </div>
                     </div>
-                    {appointment.capacity > 1 && (
+                    {appointment.isGroup && (
                         <div>
                             <h3 className="text-xs font-bold text-[#5A6C7D] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <User size={14} /> Group Meeting Status

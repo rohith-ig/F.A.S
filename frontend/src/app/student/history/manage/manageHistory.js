@@ -23,6 +23,7 @@ export default function ManageRequests() {
 
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [capacity, setCapacity] = useState(1);
+  const [isGroup, setIsGroup] = useState(false);
   const [students, setStudents] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
   
@@ -36,6 +37,7 @@ export default function ManageRequests() {
        const found = response.data.find(a => String(a.id) === String(aptId));
        if (found) {
            setCapacity(found.capacity || 1);
+           setIsGroup(found.isGroup || false);
            setStudents(found.students || []);
            setCreatorId(found.studentId);
        }
@@ -137,7 +139,7 @@ export default function ManageRequests() {
             </div>
           )}
 
-          {capacity > 1 && (
+          {isGroup && (
             <div className="mt-6 p-5 rounded-lg bg-[#F8FAFC] border border-[#DCE3ED]">
                <div className="flex items-center justify-between mb-4">
                   <h4 className="flex items-center gap-2 text-base font-bold text-[#1F3A5F]"><Users size={16} className="text-[#4A6FA5]" /> Group Meeting Participants</h4>

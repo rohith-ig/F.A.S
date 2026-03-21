@@ -177,7 +177,7 @@ function AppointmentRow({ data, type }) {
                         return creator?.student?.rollNumber || "N/A";
                     })()})
                  </span>
-                 {data.capacity > 1 && (
+                 {data.isGroup && (
                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100 rounded">
                          Group
                      </span>
