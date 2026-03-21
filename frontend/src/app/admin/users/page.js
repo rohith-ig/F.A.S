@@ -19,7 +19,6 @@ export default function ManageAccountsPage() {
 
 const fetchUsers = async () => { 
   try {
-    // Replace this string with the actual token you printed from test.js
     const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsInJvbGUiOiJBRE1JTiIsImlhdCI6MTc3MzY3NTkxNSwiZXhwIjo0OTI5NDM1OTE1fQ.Du9Oj4U7oSaAiA-Ycz4QclpIGZW2dMiidHOHe-c6M6E"; 
 
     const res = await fetch("http://localhost:6969/api/users", {
@@ -56,7 +55,7 @@ const fetchUsers = async () => {
     });
 
 
-  const [editingId, setEditingId] = useState(null);
+  // const [editingId, setEditingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
 
 

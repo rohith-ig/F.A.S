@@ -14,9 +14,6 @@ app.use(express.json());
 
 const userRoutes = require("./routes/users");
 app.use("/api/users", userRoutes);
-
-
-
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRouter);
 app.use("/api/avail", availRoutes);
@@ -31,3 +28,7 @@ app.listen(PORT, () => {
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the F.A.S API!" });
 });
+
+
+
+
