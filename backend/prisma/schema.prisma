@@ -28,6 +28,7 @@ model StudentProfile {
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   appointmentRequests AppointmentRequest[] 
   appointments AppointmentUsers[]
+  appointments AppointmentUsers[]
 }
 
 model FacultyProfile {
@@ -49,6 +50,7 @@ model AppointmentRequest {
   purpose   String
   note      String?
   cancellationNote   String?
+  cancellationNote   String?
   status      Status   @default(PENDING)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -56,6 +58,16 @@ model AppointmentRequest {
   isGroup     Boolean  @default(false)
   student     StudentProfile     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   faculty     FacultyProfile     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  students   AppointmentUsers[]
+}
+
+model AppointmentUsers {
+  id            Int      @id @default(autoincrement())
+  appointmentId Int
+  userId        Int
+  appointment    AppointmentRequest @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  student        StudentProfile               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([appointmentId, userId])
   students   AppointmentUsers[]
 }
 
@@ -89,6 +101,12 @@ enum Role {
   STUDENT
 }
 
+model Timetable {
+  id           Int    @id @default(autoincrement())
+  facultyName  String
+  day          String
+  time         String
+}
 model Timetable {
   id           Int    @id @default(autoincrement())
   facultyName  String
