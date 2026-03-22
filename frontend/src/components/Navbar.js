@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef, useContext } from "react";
 import { studentContext } from "../app/student/context.js";
 import { Menu, X, Bell, User, LogOut } from "lucide-react";
+import { Context } from "./context.js";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -12,7 +13,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { userData } = useContext(studentContext) || null; // Access user data from context
+  const { userData } = useContext(Context) || null; // Access user data from context
   const handleSignOut = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = "/";
@@ -122,7 +123,7 @@ export default function Navbar() {
                       <p className="text-sm font-bold text-[#1F3A5F] truncate">
                         { userData?.name || 'User' }
                       </p>
-                      <p className="text-xs text-[#5A6C7D] capitalize mt-0.5">{userData?.studentProfile.rollNumber || 'N/A'}</p>
+                      <p className="text-xs text-[#5A6C7D] capitalize mt-0.5">{userData?.data || 'N/A'}</p>
                     </div>
 
                     {portalType !== 'admin' && (

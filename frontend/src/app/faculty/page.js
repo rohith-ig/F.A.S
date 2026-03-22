@@ -9,7 +9,8 @@ import {
     Settings,
 } from "lucide-react";
 import api from "../../axios";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useContext } from "react";
+import { Context } from "../../components/context.js";
 import { Loader2 } from "lucide-react";const facultyAppointments = [
     {
         id: 101,
@@ -66,13 +67,17 @@ const quickActions = [
 export default function FacultyDashboard() {
     const [facultyAppointments, setFacultyAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [user, setUser] = useState(null);
+    const { setUserData } = useContext(Context);
     const fetchDetails = useCallback(async () => {
         setLoading(true);
         try {
             const response = await api.get('/appmt');
+            const userData = await api.get('/users/get');
             console.log('Fetched appointments:', response.data);
+            console.log('Fetched user data:', userData.data);
             setFacultyAppointments(response.data);
+            setUserData({ name : userData.data.user.name, data : userData.data?.user.facultyProfile.designation });
         } catch (error) {
             console.error('Error fetching faculty appointments:', error);
         } finally {
