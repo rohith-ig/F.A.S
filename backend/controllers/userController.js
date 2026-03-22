@@ -3,6 +3,10 @@ const prisma = require("../config/database");
 // ADD USER
 exports.addUser = async (req, res) => {
   try {
+    if (req.user.role !== 'ADMIN') { 
+      console.log("Forbidden error"); 
+      return res.status(401).json({"Error":"Unauthorised"}); 
+    }
     const { name, email, role, roll, program, dept, designation1} = req.body;
 
     let userData = {
@@ -56,6 +60,10 @@ exports.addUser = async (req, res) => {
 // DELETE USER
 exports.deleteUser = async (req, res) => {
   try {
+    if (req.user.role !== 'ADMIN') { 
+      console.log("Forbidden error"); 
+      return res.status(401).json({"Error":"Unauthorised"}); 
+    }
     const { id } = req.params;
 
     await prisma.user.delete({
@@ -92,3 +100,84 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+
+
+//upload users in csv
+const fs = require("fs"); 
+const csv = require("csv-parser");
+
+exports.bulkUploadUsers = async (req, res) => { 
+  try { 
+    if (req.user.role !== "ADMIN") { 
+      return res.status(401).json({ error: "Unauthorized" }); 
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const results = [];
+
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', async () => {
+        try {
+          for (const row of results) {
+  if (!row.name || !row.email) continue; 
+
+  // Dynamically grab the role from the CSV (default to STUDENT if blank)
+  const userRole =
+    row.role && row.role.toUpperCase() === "FACULTY"
+      ? "FACULTY"
+      : "STUDENT";
+
+  await prisma.user.create({
+    data: {
+      name: row.name, 
+      email: row.email,
+      role: userRole,
+      profilePic: "",
+
+      // If STUDENT → create studentProfile
+      ...(userRole === "STUDENT" && {
+        studentProfile: {
+          create: {
+            rollNumber: row.rollNumber || "",
+            department: row.department || "",
+            designation: row.program || "",   // keep this since your schema uses it
+          }
+        }
+      }),
+
+      // If FACULTY → create facultyProfile
+      ...(userRole === "FACULTY" && {
+        facultyProfile: {
+          create: {
+            department: row.department || "",
+            designation: row.designation || "",
+          }
+        }
+      })
+    }
+  });
+}
+
+
+          // Delete the temporary file created by Multer
+          fs.unlinkSync(req.file.path);
+
+          // Send the success response so your frontend refreshes!
+          res.json({ success: true, message: "Users uploaded successfully" });
+
+        } catch (dbError) {
+          console.error("Database error:", dbError);
+          res.status(500).json({ error: "Error saving records to database" });
+        }
+      });
+
+  } catch (err) { 
+    console.error(err); 
+    res.status(500).json({ error: "Upload failed" }); 
+  } 
+};

@@ -64,14 +64,9 @@ const getAppointments = async (req, res) => {
                 where: { studentId: req.user.studentProfile.id },
                 include: {
                     faculty: {
-                        select : {
-                            id: true,
-                            department: true,
-                            designation: true
-                        },
-                        include : {
-                            user : {
-                                select : {
+                        include: {
+                            user: {
+                                select: {
                                     name: true,
                                     email: true
                                 }
@@ -79,7 +74,7 @@ const getAppointments = async (req, res) => {
                         }
                     }
                 },
-                orderBy: { start: 'asc' },
+                orderBy: { start: 'desc' },
             });     
         }
         else if (req.user.role === 'FACULTY') {
@@ -92,6 +87,7 @@ const getAppointments = async (req, res) => {
                             department: true,
                             designation: true,
                             designation : true,
+                            rollNumber : true,
                             user : {
                                 select : { 
                                     name : true,

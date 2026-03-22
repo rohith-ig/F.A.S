@@ -1,48 +1,45 @@
 "use client"
 import Link from "next/link";
-import { useState } from "react";
-import { Calendar, Clock, ChevronRight, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Clock, ChevronRight, Filter, Loader2 } from "lucide-react";
+import api from "../../../axios";
 
 export default function StudentHistoryPage() {
 
-    const [appointments, setAppointments] = useState([
-        {
-            id: 1,
-            faculty: "Dr. Alan Turing",
-            date: "Oct 24, 2026",
-            time: "10:30 AM",
-            status: "Pending",
-            rescheduleRequested: true,
-            type: "Project Review",
-            dept: "Computer Science",
-            email: "alan@edu.in",
-            location: "MB - 209"
-        },
-        {
-            id: 2,
-            faculty: "Prof. Grace Hopper",
-            date: "Oct 26, 2026",
-            time: "2:00 PM",
-            status: "Pending",
-            rescheduleRequested: false,
-            type: "Guidance",
-            dept: "Computer Science",
-            email: "grace@edu.in",
-            location: "MB - 101"
-        },
-        {
-            id: 3,
-            faculty: "Prof. Medha Shankar",
-            date: "Mar 3, 2026",
-            time: "4:15 PM",
-            status: "Completed",
-            rescheduleRequested: false,
-            type: "Guidance",
-            dept: "Computer Science",
-            email: "medha@edu.in",
-            location: "MB - 101"
-        }
-    ]);
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchAppointments = async () => {
+            try {
+                const response = await api.get('/appmt');
+                const formattedData = response.data.map(apt => {
+                    const startDate = new Date(apt.start);
+                    let displayStatus = apt.status.charAt(0) + apt.status.slice(1).toLowerCase();
+                    if (apt.status === 'APPROVED') displayStatus = 'Confirmed';
+
+                    return {
+                        id: apt.id,
+                        faculty: apt.faculty?.user?.name || "Faculty",
+                        date: startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                        time: startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+                        status: displayStatus,
+                        rescheduleRequested: false,
+                        type: apt.purpose,
+                        dept: apt.faculty?.department || "",
+                        email: apt.faculty?.user?.email || "",
+                        location: apt.location || "TBD"
+                    };
+                });
+                setAppointments(formattedData);
+            } catch (error) {
+                console.error("Failed to fetch appointments:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAppointments();
+    }, []);
 
     const [statusFilter, setStatusFilter] = useState("All");
     const [showFilter, setShowFilter] = useState(false);
@@ -79,6 +76,15 @@ export default function StudentHistoryPage() {
 
         window.location.href = `/student/reschedule?${query}`;
     };
+
+    if (loading) {
+        return (
+            <div className="flex h-[calc(100vh-100px)] w-full items-center justify-center text-[#5A6C7D] flex-col gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-[#1F3A5F]" />
+                <p className="font-semibold">Loading History...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="mx-auto w-full max-w-6xl px-4">

@@ -11,8 +11,6 @@ const HandleAuth = () => {
             console.log(token)
             if (token) {
                 const decoded = jwtDecode(token);
-                localStorage.setItem('token', token);
-                localStorage.setItem('userId', decoded.userId);
                 document.cookie = `token=${token}; path=/; max-age=1800; samesite=lax`; 
                 const role = decoded.role;
                 if (role === 'ADMIN') {

@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
 import api from "../../axios.js";
+import { useEffect, useState, useCallback } from "react";
 
 import {
     Search,
@@ -7,26 +9,8 @@ import {
     Clock,
     MessageSquareWarning,
     ArrowRight,
+    Loader2
 } from "lucide-react";
-
-const studentAppointments = [
-    {
-        id: 1,
-        faculty: "Dr. Alan Turing",
-        date: "Oct 24, 2026",
-        time: "10:30 AM",
-        status: "Confirmed",
-        type: "Project Review"
-    },
-    {
-        id: 2,
-        faculty: "Prof. Grace Hopper",
-        date: "Oct 26, 2026",
-        time: "2:00 PM",
-        status: "Pending",
-        type: "Guidance"
-    }
-];
 
 const quickActions = [
     {
@@ -47,7 +31,7 @@ const quickActions = [
         title: "Past Appointments",
         desc: "Review your pending requests and appointment history.",
         icon: CalendarCheck,
-        href: "/student/history", // 
+        href: "/student/history", 
         color: "bg-emerald-100 text-emerald-700",
     },
     {
@@ -59,17 +43,60 @@ const quickActions = [
     },
 ];
 
-export default async function StudentDashboard() {
-    const data = await api.get("/");
+export default function StudentDashboard() {
+    const [user, setUser] = useState(null);
+    const [appointments, setAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchDashboardData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const [userRes, appmtRes] = await Promise.all([
+                api.get('/user'),
+                api.get('/appmt')
+            ]);
+            setUser(userRes.data);
+            
+            // Filter to get upcoming (APPROVED) and pending appointments if desired, 
+            // but let's just show top 3 upcoming APPROVED ones sorted by date
+            const upcoming = appmtRes.data
+                .filter(a => a.status === 'APPROVED' && new Date(a.start) > new Date())
+                .sort((a, b) => new Date(a.start) - new Date(b.start))
+                .slice(0, 3);
+            
+            setAppointments(upcoming);
+        } catch (error) {
+            console.error("Failed to fetch dashboard data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, [fetchDashboardData]);
+
+    if (loading) {
+        return (
+            <div className="flex h-[calc(100vh-100px)] w-full flex-col items-center justify-center gap-3 text-[#5A6C7D]">
+                <Loader2 className="h-10 w-10 animate-spin text-[#1F3A5F]" />
+                <p className="text-sm font-medium">Loading Dashboard Data...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="mx-auto w-full max-w-6xl px-4">
+        <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-4">
             {/* Header Section */}
             <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-[#1F3A5F]">
-                        Welcome back, John Doe
+                        Welcome back, {user?.name || 'Student'}
                     </h1>
-                    <p className="text-sm text-[#5A6C7D] mt-1">
+                    <p className="text-sm text-[#5A6C7D] mt-1 flex items-center gap-2">
+                        {user?.studentProfile?.rollNumber} • {user?.studentProfile?.department}
+                    </p>
+                    <p className="text-sm text-[#5A6C7D] mt-4">
                         Manage your appointments, check faculty availability, and track requests.
                     </p>
                 </div>
@@ -97,7 +124,7 @@ export default async function StudentDashboard() {
                             <div>
                                 <h3 className="mb-1 font-semibold text-[#1F3A5F] group-hover:text-[#4A6FA5] transition-colors">
                                     {action.title}
-                                </h3>
+                               </h3>
                                 <p className="text-sm text-[#5A6C7D]">{action.desc}</p>
                             </div>
                         </Link>
@@ -113,32 +140,37 @@ export default async function StudentDashboard() {
                 </div>
 
                 <div className="bg-white rounded-xl border border-[#DCE3ED] shadow-sm overflow-hidden">
-                    {studentAppointments.length > 0 ? (
+                    {appointments.length > 0 ? (
                         <ul className="divide-y divide-[#DCE3ED]">
-                            {studentAppointments.map((apt) => (
+                            {appointments.map((apt) => {
+                                const startDate = new Date(apt.start);
+                                const timeString = startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                const dateString = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                
+                                return (
                                 <li key={apt.id} className="p-5 hover:bg-[#F8FAFC] transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="flex items-start gap-4">
-                                        <div className="bg-[#4A6FA5]/10 rounded-lg p-3 text-center min-w-[60px] border border-[#4A6FA5]/20">
-                                            <span className="block text-xs font-bold text-[#4A6FA5] uppercase">{apt.date.split(' ')[0]}</span>
-                                            <span className="block text-lg font-bold text-[#1F3A5F]">{apt.date.split(' ')[1].replace(',', '')}</span>
+                                        <div className="bg-[#4A6FA5]/10 rounded-lg p-3 text-center min-w-[70px] border border-[#4A6FA5]/20">
+                                            <span className="block text-xs font-bold text-[#4A6FA5] uppercase">{dateString.split(' ')[0]} {dateString.split(' ')[1].replace(',', '')}</span>
+                                            <span className="block text-[15px] font-bold text-[#1F3A5F]">{timeString}</span>
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.faculty}</h4>
+                                            <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.faculty.user.name}</h4>
                                             <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
-                                                <Clock size={14} /> {apt.time} • {apt.type}
+                                                <Clock size={14} /> Duration: {(new Date(apt.end) - new Date(apt.start)) / 60000} min
+                                            </p>
+                                            <p className="text-sm text-[#5A6C7D] mt-1 space-x-1">
+                                                <span className="font-medium text-[#1F3A5F]">Purpose:</span> <span>{apt.purpose}</span>
                                             </p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span
-                                            className={`px-3 py-1 rounded-full text-xs font-semibold ${apt.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                                                }`}
-                                        >
+                                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
                                             {apt.status}
                                         </span>
                                     </div>
                                 </li>
-                            ))}
+                            )})}
                         </ul>
                     ) : (
                         <div className="p-8 text-center text-[#5A6C7D]">

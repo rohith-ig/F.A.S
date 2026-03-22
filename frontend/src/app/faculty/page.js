@@ -1,3 +1,4 @@
+'use client'
 import Link from "next/link";
 import {
     CalendarClock,
@@ -7,8 +8,9 @@ import {
     ArrowRight,
     Settings,
 } from "lucide-react";
-
-const facultyAppointments = [
+import api from "../../axios";
+import { useEffect, useState, useCallback } from "react";
+import { Loader2 } from "lucide-react";const facultyAppointments = [
     {
         id: 101,
         studentName: "Ada Lovelace",
@@ -62,28 +64,50 @@ const quickActions = [
 ];
 
 export default function FacultyDashboard() {
-    const pendingRequests = facultyAppointments.filter(apt => apt.status === 'Pending');
+    const [facultyAppointments, setFacultyAppointments] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    const fetchDetails = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/appmt');
+            setFacultyAppointments(response.data);
+        } catch (error) {
+            console.error('Error fetching faculty appointments:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchDetails();
+    }, [fetchDetails]);
+
+
+    const pendingRequests = [...facultyAppointments]
+        .filter(apt => apt.status === 'PENDING')
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0) || b.id - a.id)
+        .slice(0, 4);
+    
+    const handleStatusUpdate = async (id, status) => {
+        try {
+            await api.post(`/appmt/update/${id}`, { status });
+            await fetchDetails(); // Re-fetch all data to ensure sync
+        } catch (error) {
+            console.error('Failed to update status:', error);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex h-[calc(100vh-100px)] w-full flex-col items-center justify-center gap-3 text-[#5A6C7D]">
+                <Loader2 className="h-10 w-10 animate-spin text-[#1F3A5F]" />
+                <p className="text-sm font-medium">Loading Dashboard Data...</p>
+            </div>
+        );
+    }
     return (
         <div className="mx-auto w-full max-w-6xl px-4">
-            {/* Header Section */}
-            <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-[#1F3A5F]">
-                        Welcome back, Faculty!
-                    </h1>
-                    <p className="text-sm text-[#5A6C7D] mt-1">
-                        Manage your schedule, respond to student requests, and oversee your appointments.
-                    </p>
-                </div>
-                <Link
-                    href="/faculty/list"
-                    className="inline-flex items-center gap-2 rounded-md bg-[#1F3A5F] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#2A4A75]"
-                >
-                    View All Requests <ArrowRight size={16} />
-                </Link>
-            </header>
-
             {/* Quick Actions Grid */}
             <section className="mb-10">
                 <h2 className="mb-4 text-lg font-semibold text-[#1F3A5F]">Quick Actions</h2>
@@ -119,7 +143,7 @@ export default function FacultyDashboard() {
                             <div className="p-3 bg-amber-100 text-amber-700 rounded-lg">
                                 <Clock size={28} />
                             </div>
-                            <span className="text-4xl font-bold text-[#1F3A5F]">{pendingRequests.length}</span>
+                            <span className="text-4xl font-bold text-[#1F3A5F]">{facultyAppointments.filter(apt => apt.status === 'PENDING').length}</span>
                         </div>
                     </div>
                     <div className="rounded-xl border border-[#DCE3ED] bg-white p-5 shadow-sm">
@@ -143,32 +167,39 @@ export default function FacultyDashboard() {
 
                     <div className="bg-white rounded-xl border border-[#DCE3ED] shadow-sm overflow-hidden">
                         {pendingRequests.length > 0 ? (
-                            <ul className="divide-y divide-[#DCE3ED]">
-                                {pendingRequests.map((apt) => (
-                                    <li key={apt.id} className="p-5 hover:bg-[#F8FAFC] transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                        <div className="flex items-start gap-4">
-                                            <div className="bg-[#4A6FA5]/10 rounded-lg p-3 text-center min-w-[60px] border border-[#4A6FA5]/20">
-                                                <span className="block text-xs font-bold text-[#4A6FA5] uppercase">{apt.date.split(' ')[0]}</span>
-                                                <span className="block text-lg font-bold text-[#1F3A5F]">{apt.date.split(' ')[1].replace(',', '')}</span>
+                            <>
+                                <ul className="divide-y divide-[#DCE3ED]">
+                                    {pendingRequests.map((apt) => (
+                                        <li key={apt.id} className="p-5 hover:bg-[#F8FAFC] transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div className="flex items-start gap-4">
+                                                <div className="bg-[#4A6FA5]/10 rounded-lg p-3 text-center min-w-[60px] border border-[#4A6FA5]/20">
+                                                    <span className="block text-xs font-bold text-[#4A6FA5] uppercase">{new Date(apt.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                                    <span className="block text-lg font-bold text-[#1F3A5F]">{new Date(apt.start).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.student.user.name} <span className="text-sm font-normal text-[#5A6C7D]">({apt.student.rollNumber})</span></h4>
+                                                    <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
+                                                        <Clock size={14} /> {new Date(apt.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {apt.purpose}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.studentName} <span className="text-sm font-normal text-[#5A6C7D]">({apt.studentId})</span></h4>
-                                                <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
-                                                    <Clock size={14} /> {apt.time} • {apt.purpose}
-                                                </p>
+                                            <div className="flex items-center gap-2">
+                                                <button onClick={() => handleStatusUpdate(apt.id, 'APPROVED')} className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer shadow-sm">
+                                                    Approve
+                                                </button>
+                                                <button onClick={() => handleStatusUpdate(apt.id, 'REJECTED')} className="bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 px-4 py-2 rounded-md text-sm font-semibold transition cursor-pointer shadow-sm">
+                                                    Reject
+                                                </button>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium transition cursor-pointer">
-                                                Approve
-                                            </button>
-                                            <button className="border border-[#DCE3ED] bg-white hover:bg-gray-50 text-[#5A6C7D] px-4 py-2 rounded-md text-sm font-medium transition cursor-pointer">
-                                                Review
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="p-4 text-center border-t border-[#DCE3ED] bg-[#FBFCFE]">
+                                    <Link href="/faculty/list" className="text-[#4A6FA5] text-sm font-semibold hover:underline">
+                                        View All Pending Requests →
+                                    </Link>
+                                </div>
+                            </>
                         ) : (
                             <div className="p-8 text-center text-[#5A6C7D]">
                                 <CalendarClock className="mx-auto h-12 w-12 text-[#DCE3ED] mb-3" />
