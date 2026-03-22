@@ -27,6 +27,7 @@ model StudentProfile {
   department  String
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   appointmentRequests AppointmentRequest[] 
+  appointments AppointmentUsers[]
 }
 
 model FacultyProfile {
@@ -47,11 +48,23 @@ model AppointmentRequest {
   end        DateTime
   purpose   String
   note      String?
+  cancellationNote   String?
   status      Status   @default(PENDING)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  capacity    Int
   student     StudentProfile     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   faculty     FacultyProfile     @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  students   AppointmentUsers[]
+}
+
+model AppointmentUsers {
+  id            Int      @id @default(autoincrement())
+  appointmentId Int
+  userId        Int
+  appointment    AppointmentRequest @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  student        StudentProfile               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([appointmentId, userId])
 }
 
 model FacultyAvailability {
@@ -73,4 +86,11 @@ enum Role {
   ADMIN
   FACULTY
   STUDENT
+}
+
+model Timetable {
+  id           Int    @id @default(autoincrement())
+  facultyName  String
+  day          String
+  time         String
 }
