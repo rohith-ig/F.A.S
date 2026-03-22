@@ -1,7 +1,8 @@
 "use client"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
+import { studentContext } from "../app/student/context.js";
 import { Menu, X, Bell, User, LogOut } from "lucide-react";
 
 export default function Navbar() {
@@ -11,7 +12,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
-
+  const { userData } = useContext(studentContext) || null; // Access user data from context
   const handleSignOut = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.href = "/";
@@ -119,9 +120,9 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-56 bg-white border border-[#DCE3ED] rounded-xl shadow-lg py-2 z-50 animate-fade-in origin-top-right">
                     <div className="px-4 py-3 border-b border-[#F0F4F8] mb-1">
                       <p className="text-sm font-bold text-[#1F3A5F] truncate">
-                        {portalType === 'student' ? 'Ada Lovelace' : portalType === 'faculty' ? 'Dr. Alan Turing' : 'Admin User'}
+                        { userData?.name || 'User' }
                       </p>
-                      <p className="text-xs text-[#5A6C7D] capitalize mt-0.5">{portalType} Portal</p>
+                      <p className="text-xs text-[#5A6C7D] capitalize mt-0.5">{userData?.studentProfile.rollNumber || 'N/A'}</p>
                     </div>
 
                     {portalType !== 'admin' && (

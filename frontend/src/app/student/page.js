@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import api from "../../axios.js";
-import { useEffect, useState, useCallback } from "react";
-
+import { useEffect, useState, useCallback, useContext } from "react";
+import { studentContext } from "../student/context.js";
 import {
     Search,
     CalendarCheck,
@@ -47,7 +47,7 @@ export default function StudentDashboard() {
     const [user, setUser] = useState(null);
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const { setUserData } = useContext(studentContext);
     const fetchDashboardData = useCallback(async () => {
         try {
             setLoading(true);
@@ -56,6 +56,7 @@ export default function StudentDashboard() {
                 api.get('/appmt')
             ]);
             setUser(userRes.data.user);
+            setUserData(userRes.data.user);
             // Filter to get upcoming (APPROVED) and pending appointments if desired, 
             // but let's just show top 3 upcoming APPROVED ones sorted by date
             const upcoming = appmtRes.data
