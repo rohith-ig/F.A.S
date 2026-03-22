@@ -28,9 +28,13 @@ export default function StudentHistoryPage() {
                         type: apt.purpose,
                         dept: apt.faculty?.department || "",
                         email: apt.faculty?.user?.email || "",
-                        location: apt.location || "TBD"
+                        location: apt.location || "TBD",
+                        cancellationNote: apt.cancellationNote || "",
+                        startRaw: apt.start,
+                        capacity: apt.capacity || 1,
+                        students: apt.students || []
                     };
-                });
+                }).sort((a, b) => new Date(a.startRaw) - new Date(b.startRaw));
                 setAppointments(formattedData);
             } catch (error) {
                 console.error("Failed to fetch appointments:", error);
@@ -223,6 +227,13 @@ export default function StudentHistoryPage() {
                                         <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
                                             <Clock size={14} /> {apt.time} • {apt.type}
                                         </p>
+                                        
+                                        {(apt.status === "Cancelled" || apt.status === "Rejected") && apt.cancellationNote && (
+                                            <div className="mt-2.5 bg-rose-50 border border-rose-100 rounded-md p-2.5 max-w-sm">
+                                                <p className="text-xs font-bold text-rose-800 mb-0.5">Cancellation Note:</p>
+                                                <p className="text-xs text-rose-700 leading-snug">{apt.cancellationNote}</p>
+                                            </div>
+                                        )}
 
                                     </div>
 
@@ -243,7 +254,7 @@ export default function StudentHistoryPage() {
                                     </span>
 
                                     <Link
-                                        href={`/student/history/manage?name=${encodeURIComponent(apt.faculty)}&date=${encodeURIComponent(apt.date)}&time=${apt.time}&dept=${apt.dept}&email=${apt.email}&location=${apt.location}&status=${apt.status}`}
+                                        href={`/student/history/manage?id=${apt.id}&name=${encodeURIComponent(apt.faculty)}&date=${encodeURIComponent(apt.date)}&time=${apt.time}&dept=${apt.dept}&email=${apt.email}&location=${apt.location}&status=${apt.status}&cancelNote=${encodeURIComponent(apt.cancellationNote || '')}`}
                                         className="text-[#5A6C7D] hover:text-[#4A6FA5] p-2 rounded-md hover:bg-[#F4F7FB] transition"
                                     >
                                         <ChevronRight size={20} />

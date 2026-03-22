@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 
 import { useState } from "react";
 
@@ -7,22 +8,38 @@ export default function RaiseTicketForm({ role }) {
   const [description, setDescription] = useState("");
   const [attachment, setAttachment] = useState(null);
 
-  function handleSubmit(e) {
-    e.preventDefault();
+  const getTokenFromCookie = () => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; token=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
 
-    // UI-only placeholder
-    console.log({
-      role,
-      title,
-      description,
-      attachment,
-    });
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const token = getTokenFromCookie(); // 1. Get token
+  const res = await fetch("http://localhost:6969/api/tickets/create-ticket", {
+    method: "POST",
+    credentials: "include",
+    headers: { 
+      "Content-Type": "application/json", 
+      "Authorization": `Bearer ${token}` // 2. Add token here
+    }, 
+    body: JSON.stringify({
+      topic:title,
+      description:description,
+    }),
+  });
 
-    alert(`Ticket raised successfully by ${role}`);
-    setTitle("");
-    setDescription("");
-    setAttachment(null);
+  if (res.ok) {
+    alert("Ticket created!");
+    router.push("/student/tickets");
+
   }
+};
+
+const router = useRouter();
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">

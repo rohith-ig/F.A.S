@@ -21,6 +21,7 @@ export default function BookAppointmentPage() {
   const [purpose, setPurpose] = useState("");
   const [note, setNote] = useState("");
   const [isGroupMeeting, setIsGroupMeeting] = useState(false);
+  const [capacity, setCapacity] = useState(1);
   const [isRecurringMeeting, setIsRecurringMeeting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -69,7 +70,7 @@ export default function BookAppointmentPage() {
     }
     setSubmitting(true);
     try {
-        const fullNote = `${note}${isGroupMeeting ? ' [Group Meeting]' : ''}${isRecurringMeeting ? ' [Recurring Meeting]' : ''}`.trim();
+        const fullNote = note.trim();
         const startFull = new Date(selectedSlot.start);
         const [h, m] = startTime.split(':').map(Number);
         startFull.setHours(h, m, 0, 0);
@@ -79,7 +80,9 @@ export default function BookAppointmentPage() {
             start: startFull.toISOString(),
             duration: parseInt(duration),
             purpose,
-            note: fullNote || undefined
+            note: fullNote || undefined,
+            capacity: parseInt(capacity),
+            isGroup: isGroupMeeting
         };
         await api.post('/appmt', payload);
         setSuccess(true);
@@ -284,29 +287,49 @@ export default function BookAppointmentPage() {
                        </div>
 
                        <div>
-                           <label className="block text-sm font-bold text-[#1F3A5F] mb-1.5">Meeting Nature</label>
-                           <div className="flex gap-3">
-                               <label className={`flex-1 flex items-center justify-center gap-2 p-2 border rounded-md font-semibold cursor-pointer transition ${isGroupMeeting ? 'bg-[#4A6FA5] text-white border-[#4A6FA5]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
-                                   <input 
-                                       type="checkbox" 
-                                       checked={isGroupMeeting} 
-                                       onChange={(e) => setIsGroupMeeting(e.target.checked)} 
-                                       className="sr-only"
-                                       disabled={!selectedSlot}
-                                   />
-                                   Group Meet
-                               </label>
-                               <label className={`flex-1 flex items-center justify-center gap-2 p-2 border rounded-md font-semibold cursor-pointer transition ${isRecurringMeeting ? 'bg-[#4A6FA5] text-white border-[#4A6FA5]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
-                                   <input 
-                                       type="checkbox" 
-                                       checked={isRecurringMeeting} 
-                                       onChange={(e) => setIsRecurringMeeting(e.target.checked)} 
-                                       className="sr-only"
-                                       disabled={!selectedSlot}
-                                   />
-                                   Recurring
-                               </label>
+                       <div className="flex gap-4">
+                           <div className="flex-1">
+                               <label className="block text-sm font-bold text-[#1F3A5F] mb-1.5">Meeting Nature</label>
+                               <div className="flex gap-3">
+                                   <label className={`flex-1 flex items-center justify-center gap-2 p-2 border rounded-md font-semibold cursor-pointer transition ${isGroupMeeting ? 'bg-[#4A6FA5] text-white border-[#4A6FA5]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
+                                       <input 
+                                           type="checkbox" 
+                                           checked={isGroupMeeting} 
+                                           onChange={(e) => {
+                                              setIsGroupMeeting(e.target.checked);
+                                              if (!e.target.checked) setCapacity(1);
+                                           }} 
+                                           className="sr-only"
+                                           disabled={!selectedSlot}
+                                       />
+                                       Group Meet
+                                   </label>
+                                   <label className={`flex-1 flex items-center justify-center gap-2 p-2 border rounded-md font-semibold cursor-pointer transition ${isRecurringMeeting ? 'bg-[#4A6FA5] text-white border-[#4A6FA5]' : 'bg-white text-[#4A6FA5] border-[#DCE3ED] hover:bg-[#F4F7FB]'} ${!selectedSlot ? 'opacity-50 pointer-events-none' : ''}`}>
+                                       <input 
+                                           type="checkbox" 
+                                           checked={isRecurringMeeting} 
+                                           onChange={(e) => setIsRecurringMeeting(e.target.checked)} 
+                                           className="sr-only"
+                                           disabled={!selectedSlot}
+                                       />
+                                       Recurring
+                                   </label>
+                               </div>
                            </div>
+                           
+                           {isGroupMeeting && (
+                             <div className="w-[100px]">
+                                <label className="block text-sm font-bold text-[#1F3A5F] mb-1.5">Capacity</label>
+                                <input 
+                                  type="number" 
+                                  min={1} 
+                                  value={capacity} 
+                                  onChange={(e) => setCapacity(e.target.value)}
+                                  className="w-full rounded-md border border-[#DCE3ED] bg-white px-3 py-2 text-sm text-[#1F3A5F] outline-none focus:border-[#4A6FA5] focus:ring-1 focus:ring-[#4A6FA5] transition shadow-sm"
+                                />
+                             </div>
+                           )}
+                       </div>
                        </div>
 
                        <div>

@@ -71,6 +71,7 @@ export default function FacultyDashboard() {
         setLoading(true);
         try {
             const response = await api.get('/appmt');
+            console.log('Fetched appointments:', response.data);
             setFacultyAppointments(response.data);
         } catch (error) {
             console.error('Error fetching faculty appointments:', error);
@@ -177,7 +178,7 @@ export default function FacultyDashboard() {
                                                     <span className="block text-lg font-bold text-[#1F3A5F]">{new Date(apt.start).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.student.user.name} <span className="text-sm font-normal text-[#5A6C7D]">({apt.student.rollNumber})</span></h4>
+                                                    <h4 className="font-semibold text-[#1F3A5F] text-lg">{apt.students[0].student.user.name} <span className="text-sm font-normal text-[#5A6C7D]">({apt.students[0].student.rollNumber})</span></h4>
                                                     <p className="text-sm text-[#5A6C7D] flex items-center gap-2 mt-1">
                                                         <Clock size={14} /> {new Date(apt.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {apt.purpose}
                                                     </p>

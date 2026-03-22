@@ -40,7 +40,8 @@ const features = [
 
 export default function AdminDashboard() {
   return (
-    <main className="min-h-screen bg-[#F7F9FC] px-4">
+    <main className="min-h-screen bg-[#F7F9FC] px-4 md:px-6 py-8 animate-fadeIn">
+      {/* min-h-screen bg-[#F7F9FC] px-4 md:px-6 py-8 animate-fadeIn */}
       <section className="mx-auto w-full max-w-6xl">
         {/* Stats */}
         <section className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">

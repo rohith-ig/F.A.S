@@ -52,11 +52,10 @@ export default function StudentDashboard() {
         try {
             setLoading(true);
             const [userRes, appmtRes] = await Promise.all([
-                api.get('/user'),
+                api.get('/users/get'),
                 api.get('/appmt')
             ]);
-            setUser(userRes.data);
-            
+            setUser(userRes.data.user);
             // Filter to get upcoming (APPROVED) and pending appointments if desired, 
             // but let's just show top 3 upcoming APPROVED ones sorted by date
             const upcoming = appmtRes.data

@@ -5,7 +5,8 @@ const postAppointmentRequest = async (req, res) => {
         if (req.user.role !== 'STUDENT') {
             return res.status(403).json({ error: 'Only students can create appointment requests' });
         }
-        const { facultyId, start, duration, purpose, note } = req.body;
+        const { facultyId, start, duration, purpose, note, capacity = 1, isGroup = false } = req.body;
+
         if (!facultyId || !start || !duration || !purpose) {
             return res.status(400).json({ error: 'Missing required fields' });
         }   
@@ -45,7 +46,14 @@ const postAppointmentRequest = async (req, res) => {
                 start: new Date(start),
                 end : new Date(new Date(start).getTime() + duration * 60000),
                 purpose: purpose,
-                note: note
+                note: note,
+                capacity: capacity
+            }
+        });
+        const addUserGroup = await prisma.appointmentUsers.create({
+            data: {
+                appointmentId: create.id,
+                userId: req.user.studentProfile.id
             }
         });
         res.status(201).json(create);
@@ -61,41 +69,65 @@ const getAppointments = async (req, res) => {
         let appointments;
         if (req.user.role === 'STUDENT') {
             appointments = await prisma.appointmentRequest.findMany({
-                where: { studentId: req.user.studentProfile.id },
-                include: {
-                    faculty: {
-                        include: {
-                            user: {
-                                select: {
-                                    name: true,
-                                    email: true
+                where: 
+                { 
+                    OR : [
+                        { studentId: req.user.studentProfile.id },
+                        { students : {
+                                some : {
+                                    userId : req.user.studentProfile.id
+                                }
+                            } 
+                        }
+                    ]
+                },
+                include : {
+                    faculty : {
+                        include : {
+                            user : {
+                                select : {
+                                    name : true,
+                                    email : true,
+                                }
+                            }
+                        }
+                    },
+                    students : {
+                        include : {
+                            student : {
+                                include : {
+                                    user : {
+                                        select : {
+                                            name : true,
+                                            email : true
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 },
-                orderBy: { start: 'desc' },
+                orderBy: { start: 'asc' },
             });     
         }
         else if (req.user.role === 'FACULTY') {
             appointments = await prisma.appointmentRequest.findMany({
                 where: { facultyId: req.user.facultyProfile.id },
                 include: {
-                    student: {
-                        select: {
-                            id: true,
-                            department: true,
-                            designation: true,
-                            designation : true,
-                            rollNumber : true,
-                            user : {
-                                select : { 
-                                    name : true,
-                                    email : true
+                    students : {
+                        include : {
+                            student : {
+                                include : {
+                                    user : {
+                                        select : {
+                                            name : true,
+                                            email : true
+                                        }
                                     }
                                 }
+                            }
                         }
-                },
+                    }
             },
                 orderBy: { start: 'asc' },
             });     
@@ -114,7 +146,7 @@ const getAppointments = async (req, res) => {
 const updateAppointmentStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, cancel } = req.body;
         if (req.user.role !== 'FACULTY') {
             return res.status(403).json({ error: 'Only faculty members can update appointment status' });
         }
@@ -136,7 +168,7 @@ const updateAppointmentStatus = async (req, res) => {
             }
             const update = await prisma.appointmentRequest.update({
                 where : {id : Number(id)},
-                data: {status : status}
+                data: {status : status, cancellationNote: cancel}
             });
             return res.json({success:update})
         }
@@ -158,7 +190,8 @@ const updateAppointmentStatus = async (req, res) => {
                         }
                     },
                     data : {
-                        status : "REJECTED"
+                        status : "REJECTED",
+                        cancellationNote : "This appointment was automatically rejected because the time slot was taken by another approved appointment."
                     }
                 });
                 return res.json(updateMain);
@@ -166,7 +199,7 @@ const updateAppointmentStatus = async (req, res) => {
             if (status === 'REJECTED') {
                 const updateMain = await prisma.appointmentRequest.update({
                     where : {id : Number(id)},
-                    data: {status : status}
+                    data: {status : status, cancellationNote: cancel}
                 });
                 return res.json(updateMain);
             }
@@ -175,12 +208,68 @@ const updateAppointmentStatus = async (req, res) => {
     }
     catch (e) {
         console.log(e);
-        res.status(500).json("Internal Server Error")
+        res.status(500).json("Internal Server Error");
     }
+}
+
+const addGroupMember = async (req,res) => {
+    try {
+        const { appmtId, email } = req.body;
+        const user = await prisma.user.findUnique({
+            where : {email : email},
+            include : {
+                studentProfile : true
+            }
+        });
+        if(!user || user.role !== 'STUDENT') {
+            return res.status(404).json({error : "User not found"});
+        }
+        const appmt = await prisma.appointmentRequest.findUnique({
+            where : {id : Number(appmtId)},
+            include : {
+                _count : {
+                    select : {
+                        students : true
+                    }
+                }
+            }
+        });
+        if(!appmt || appmt.studentId !== req.user.studentProfile.id) {
+            return res.status(404).json({error : "Appointment not found"});
+        }
+        if (!appmt.isGroup) {
+            return res.status(400).json({error : "This appointment is not a group appointment"});
+        }
+        const currentMembers = appmt._count.students;
+        if (currentMembers >= appmt.capacity) {
+            return res.status(400).json({error : "Appointment capacity reached"});
+        }
+        const existingMember = await prisma.appointmentUsers.findFirst({
+            where : {
+                appointmentId : Number(appmtId),
+                userId : user.studentProfile.id
+            }
+        });
+        if(existingMember) {
+            return res.status(400).json({error : "User is already a member of this appointment"});
+        }
+        const addUserGroup = await prisma.appointmentUsers.create({
+            data: {
+                appointmentId: Number(appmtId),
+                userId: user.studentProfile.id
+            }
+        });
+        res.json({success : addUserGroup});
+    }   
+    catch (e) {
+        console.log(e);
+        res.status(500).json({"Error": "Internal Server Error"});
+    } 
 }
 
 module.exports = {
     postAppointmentRequest,
     getAppointments,
-    updateAppointmentStatus
+    updateAppointmentStatus,
+    addGroupMember
 };
