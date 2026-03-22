@@ -1,16 +1,50 @@
 "use client"
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, Bell, User, LogOut } from "lucide-react";
+import api from "@/axios";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const portalType = pathname.split('/')[1];
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);  
   const dropdownRef = useRef(null);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get("/notifications");
+      setNotifications(res.data);
+    } catch (err) {
+      console.error("Failed to fetch notifications");
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const markAsRead = async (id) => {
+    try {
+      await api.patch(`/notifications/${id}/read`);
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id ? { ...n, isRead: true } : n
+        )
+      );
+    } catch (err) {
+      console.error("Failed to mark as read");
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const handleSignOut = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -102,10 +136,81 @@ export default function Navbar() {
             </nav>
 
             <div className="flex items-center gap-3">
-              <button className="p-2 rounded-full text-[#5A6C7D] hover:bg-[#F4F7FB] transition-colors relative">
-                <Bell size={18} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className="p-2 rounded-full text-[#5A6C7D] hover:bg-[#F4F7FB] transition-colors relative"
+                >
+                  <Bell size={18} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] px-1 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <div className="absolute right-0 mt-3 w-80 bg-white border border-[#E0E0E0] rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.06)] z-50 overflow-hidden">
+
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-[#E0E0E0] bg-[#F7F9FC]">
+                      <p className="text-sm font-semibold text-[#1F3A5F]">
+                        Notifications
+                      </p>
+                    </div>
+
+                    {/* Content */}
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <p className="p-4 text-sm text-[#5A6C7D] text-center">
+                          You're all caught up ✨
+                        </p>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            onClick={async () => {
+                              try {
+                                if (!n.isRead) {
+                                  await markAsRead(n.id);
+                                }
+                                setNotifOpen(false);
+                                if (n.link) {
+                                  router.push(n.link);
+                                }
+                              } catch (err) {
+                                console.error("Notification click failed");
+                              }
+                            }}
+                            className={`px-4 py-3 border-b border-[#E0E0E0] cursor-pointer transition-all ${
+                              n.isRead
+                                ? "bg-white"
+                                : "bg-[#EEF4FF] hover:bg-[#E4EDFF]"
+                            }`}
+                          >
+                           <div className="flex justify-between items-start gap-2">
+
+                            <div>
+                              <p className="text-sm font-semibold text-[#1F3A5F]">
+                                {n.title}
+                              </p>
+                              <p className="text-xs text-[#5A6C7D] mt-1">
+                                {n.message}
+                              </p>
+                            </div>
+
+                            {!n.isRead && (
+                              <div className="w-2 h-2 mt-1 rounded-full bg-[#4A6FA5] flex-shrink-0" />
+                            )}
+
+                          </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="relative" ref={dropdownRef}>
                 <div
