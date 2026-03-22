@@ -1,13 +1,44 @@
+"use client";
 import RaiseTicketForm from "@/components/RaiseTicketForm";
+import { useState, useEffect } from "react";
+
+
 
 export default function StudentRaiseTicketPage() {
 
-  // Example values (replace with session / auth data)
-  const studentName = "Janhvi Halder";
-  const studentEmail = "janhvi@student.edu";
+  const [user, setUser] = useState(null);
+
+  const getTokenFromCookie = () => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; token=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+};
+  useEffect(() => {
+    const fetchUser = async () => {
+    const token = getTokenFromCookie(); // 1. Get token
+
+    const res = await fetch("http://localhost:6969/api/users/get", { 
+      credentials: "include", 
+      headers: {
+        "Authorization": `Bearer ${token}` // 2. Add token here
+      }
+    });
+
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.user);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+
 
   return (
-    <main className="min-h-screen bg-[#F7F9FC] flex justify-center px-6 py-12">
+    <main className="min-h-screen bg-[#F7F9FC] flex justify-center px-6 py-12 animate-fadeIn">
+      {/* animate-fadeIn */}
 
       <div className="w-full max-w-3xl">
 
@@ -30,7 +61,7 @@ export default function StudentRaiseTicketPage() {
               </label>
               <input
                 type="text"
-                value={studentName}
+                value={user?.name || ""}
                 readOnly
                 className="w-full rounded-md border border-[#E0E0E0] bg-[#F7F9FC] px-3 py-2 text-sm text-[#1F3A5F]"
               />
@@ -42,7 +73,7 @@ export default function StudentRaiseTicketPage() {
               </label>
               <input
                 type="email"
-                value={studentEmail}
+                value={user?.email || ""}
                 readOnly
                 className="w-full rounded-md border border-[#E0E0E0] bg-[#F7F9FC] px-3 py-2 text-sm text-[#1F3A5F]"
               />
