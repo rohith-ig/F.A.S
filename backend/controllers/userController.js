@@ -5,7 +5,7 @@ const prisma = require("../config/database");
 exports.getIndividualUser = async (req, res) => {
   try { 
     const resp = req.user;
-    res.status(200).json({ user: resp });
+    res.status(200).json({ success:true, user: resp });
   }
   catch (e) {
     console.error(e);
@@ -176,7 +176,6 @@ exports.bulkUploadUsers = async (req, res) => {
   });
 }
 
-
           // Delete the temporary file created by Multer
           fs.unlinkSync(req.file.path);
 
@@ -193,4 +192,54 @@ exports.bulkUploadUsers = async (req, res) => {
     console.error(err); 
     res.status(500).json({ error: "Upload failed" }); 
   } 
+};
+
+
+exports.updateUser = async (req, res) => {
+  try {
+    // 1. Security check
+    if (req.user.role !== 'ADMIN') {
+      return res.status(401).json({"Error":"Unauthorised"});
+    }
+
+    const { id } = req.params;
+    const { name, email, role, roll, program, dept, designation1 } = req.body;
+
+    // 2. Update the user in the database
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: {
+        name: name,
+        email: email,
+        
+        // Update nested student profile if role is STUDENT
+        ...(role === "STUDENT" && {
+          studentProfile: {
+            update: {
+              rollNumber: roll,
+              department: dept,
+              designation: program
+            }
+          }
+        }),
+
+        // Update nested faculty profile if role is FACULTY
+        ...(role === "FACULTY" && {
+          facultyProfile: {
+            update: {
+              department: dept,
+              designation: designation1
+            }
+          }
+        })
+      },
+      include: { studentProfile: true, facultyProfile: true }
+    });
+
+    res.status(200).json({ success: true, user: updatedUser });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating user" });
+  }
 };

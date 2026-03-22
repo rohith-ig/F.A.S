@@ -9,7 +9,8 @@ const {
   deleteUser,
   getUsers,
   bulkUploadUsers,
-  getIndividualUser
+  getIndividualUser,
+  updateUser
 } = require("../controllers/userController");
 
 router.get("/",check, getUsers);
@@ -21,5 +22,6 @@ router.post(
   upload.single("file"),
   bulkUploadUsers
 );
+router.put("/update-user/:id", check, updateUser);
 
 module.exports = router;

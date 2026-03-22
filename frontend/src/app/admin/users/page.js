@@ -62,7 +62,7 @@ const fetchUsers = async () => {
     });
 
 
-  const [editingId, setEditingId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
 
 
@@ -142,9 +142,39 @@ const handleCSVUpload = async (e) => {
 
 
 //-----------------------------------------------------------------------
-  const handleEdit = (id) => {
-    setEditingId(id);
-  };
+const handleEditSubmit = async (e) => {
+  e.preventDefault();
+  const token = getTokenFromCookie();
+
+  const res = await fetch(`http://localhost:6969/api/users/update-user/${editingUser.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    // Map your editingUser state to the fields the backend expects
+    body: JSON.stringify({
+      name: editingUser.name,
+      email: editingUser.email,
+      role: editingUser.role,
+      roll: editingUser.studentProfile?.rollNumber,
+      dept: editingUser.studentProfile?.department || editingUser.facultyProfile?.department,
+      program: editingUser.studentProfile?.designation,
+      designation1: editingUser.facultyProfile?.designation
+    })
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    alert("User updated successfully!");
+    setEditingUser(null); // Close the modal/form
+    fetchUsers(); // Refresh the table to show updated data
+  } else {
+    alert("Failed to update user.");
+  }
+};
+
+//------------------------------------------------------------------------------------
 
   const handleSave = () => {
     setEditingId(null);
@@ -466,11 +496,10 @@ const handleCSVUpload = async (e) => {
           <th className="text-left font-medium">Program</th>
         )}
 
-        {tab === "STUDENT" && (
+        {/* {tab === "STUDENT" && (
           <th className="text-left font-medium">Department</th>
-        )}
-
-
+        )} */}
+        <th className="text-left font-medium">Department</th>
         <th className="text-center font-medium w-[90px]">Edit</th>
         <th className="text-center font-medium w-[90px]">Delete</th>
 
@@ -495,7 +524,6 @@ const handleCSVUpload = async (e) => {
           }}
           >
 
-
         {/* Name */}
         <td className="p-4 flex items-center gap-2 text-[#1F3A5F]">
             <User size={16} className="text-[#4A6FA5]" />
@@ -514,11 +542,10 @@ const handleCSVUpload = async (e) => {
             <td className="text-[#2A4A75]">{user.studentProfile?.designation}</td>
         )}
 
-        {tab === "STUDENT" && (
-          <td className="text-[#2A4A75]">
-            {user.studentProfile?.department}
-          </td>
-        )}
+        <td className="text-[#2A4A75]">
+          {user.studentProfile?.department || user.facultyProfile?.department}
+        </td>
+
 
 
         {/* Edit */}
@@ -526,7 +553,7 @@ const handleCSVUpload = async (e) => {
             <button
             onClick={(e) => {
                 e.stopPropagation();
-                handleEdit(user.id);
+                setEditingUser(user);
             }}
             className="p-2 rounded-md hover:bg-[#EEF3FA]"
             >
@@ -563,9 +590,6 @@ const handleCSVUpload = async (e) => {
             {tab === "FACULTY" && (
                 <div className="flex flex-col gap-2">
 
-                <div>
-                    <span className="font-medium">Department:</span> {user.department || "-"}
-                </div>
 
                 <div>
                     <span className="font-medium">Location:</span> {user.location || "-"}
@@ -599,7 +623,131 @@ const handleCSVUpload = async (e) => {
 
 
         </div>
+   {editingUser && (
+        <div className="fixed inset-0 bg-[#1F3A5F]/10 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-bold text-[#1F3A5F] mb-4">Edit User</h2>
+            
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              {/* Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <input 
+                  type="text" 
+                  required
+                  value={editingUser.name || ""} 
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                />
+              </div>
 
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input 
+                  type="email" 
+                  required
+                  value={editingUser.email || ""} 
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                />
+              </div>
+
+              {/* Role Dropdown */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <select 
+                  value={editingUser.role || "STUDENT"} 
+                  onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                  className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                >
+                  <option value="STUDENT">Student</option>
+                  <option value="FACULTY">Faculty</option>
+                </select>
+              </div>
+
+              {/* Conditional STUDENT Fields */}
+              {editingUser.role === "STUDENT" && (
+                <div className="space-y-4 p-4 bg-gray-50 border rounded-md mt-2">
+                  <input 
+                    type="text" 
+                    placeholder="Roll Number"
+                    value={editingUser.studentProfile?.rollNumber || ""} 
+                    onChange={(e) => setEditingUser({ 
+                      ...editingUser, 
+                      studentProfile: { ...editingUser.studentProfile, rollNumber: e.target.value } 
+                    })}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Department (e.g., CS)"
+                    value={editingUser.studentProfile?.department || ""} 
+                    onChange={(e) => setEditingUser({ 
+                      ...editingUser, 
+                      studentProfile: { ...editingUser.studentProfile, department: e.target.value } 
+                    })}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Program (e.g., B.Tech.)"
+                    value={editingUser.studentProfile?.designation || ""} 
+                    onChange={(e) => setEditingUser({ 
+                      ...editingUser, 
+                      studentProfile: { ...editingUser.studentProfile, designation: e.target.value } 
+                    })}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
+
+              {/* Conditional FACULTY Fields */}
+              {editingUser.role === "FACULTY" && (
+                <div className="space-y-4 p-4 bg-gray-50 border rounded-md mt-2">
+                  <input 
+                    type="text" 
+                    placeholder="Department (e.g., CS)"
+                    value={editingUser.facultyProfile?.department || ""} 
+                    onChange={(e) => setEditingUser({ 
+                      ...editingUser, 
+                      facultyProfile: { ...editingUser.facultyProfile, department: e.target.value } 
+                    })}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="Designation (e.g., Professor)"
+                    value={editingUser.facultyProfile?.designation || ""} 
+                    onChange={(e) => setEditingUser({ 
+                      ...editingUser, 
+                      facultyProfile: { ...editingUser.facultyProfile, designation: e.target.value } 
+                    })}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
+
+              {/* Buttons */}
+              <div className="flex justify-end space-x-3 pt-4">
+                <button 
+                  type="button" 
+                  onClick={() => setEditingUser(null)} // Closes the modal
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 text-sm bg-[#1F3A5F] text-white rounded-md hover:bg-[#152842]"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       </div>
 
     </main>
