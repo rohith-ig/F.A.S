@@ -29,4 +29,4 @@ app.listen(PORT, () => {
 
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the F.A.S API!" });
-});
+}); 

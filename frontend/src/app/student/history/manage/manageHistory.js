@@ -27,6 +27,9 @@ export default function ManageRequests() {
   const [students, setStudents] = useState([]);
   const [creatorId, setCreatorId] = useState(null);
   
+  const [purpose, setPurpose] = useState("Loading...");
+  const [note, setNote] = useState("Loading...");
+  
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
 
@@ -40,6 +43,8 @@ export default function ManageRequests() {
            setIsGroup(found.isGroup || false);
            setStudents(found.students || []);
            setCreatorId(found.studentId);
+           setPurpose(found.purpose || "Not Specified");
+           setNote(found.note || "No additional notes provided.");
        }
     } catch (error) {
        console.error("Failed to fetch group details:", error);
@@ -130,6 +135,14 @@ export default function ManageRequests() {
               <MapPin size={18} className="text-[#4A6FA5]" />
               <span>Location: {location}</span>
             </div>
+          </div>
+          
+          <div className="border-t border-[#E8EEF5] pt-6 mt-2">
+            <h4 className="text-sm font-bold text-[#1F3A5F] mb-1.5 flex items-center gap-2"><BookOpen size={16} className="text-[#4A6FA5]" /> Purpose</h4>
+            <p className="text-sm text-gray-700 mb-5 leading-relaxed">{purpose}</p>
+            
+            <h4 className="text-sm font-bold text-[#1F3A5F] mb-1.5 align-middle">Additional Notes</h4>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-[#F8FAFC] p-4 rounded border border-[#E8EEF5]">{note}</p>
           </div>
           
           {(status === "Cancelled" || status === "Rejected") && cancelNote && (
